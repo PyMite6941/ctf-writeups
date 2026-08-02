@@ -1,3 +1,7 @@
+# Local-only scaffolding — kept on disk, never published
+TEMPLATE.md
+posts/format-demo.md
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db

@@ -12,23 +12,29 @@ exploitation.
 
 1. Copy `TEMPLATE.md` to `posts/<slug>.md`
    *(slug = lowercase letters, numbers and hyphens only — it becomes the URL)*
-2. Fill it in. Keep the frontmatter block at the top.
-3. Add one entry to `posts/manifest.json`:
+2. Fill it in, keeping the frontmatter block at the top.
+3. Add the **slug** to `posts/manifest.json`:
 
 ```json
-{
-  "slug": "bandit-00-09",
-  "title": "OverTheWire Bandit — Levels 0–9",
-  "platform": "OverTheWire",
-  "category": "General Skills",
-  "difficulty": "Intro",
-  "date": "2026-08-05"
-}
+["bandit-00-05"]
 ```
 
 4. Commit and push. GitHub Pages redeploys in ~30 seconds.
 
 That's it — no build step, no dependencies to install.
+
+### The markdown file is the single source of truth
+
+`manifest.json` holds **only slugs**. Every displayed value — title, platform,
+category, difficulty, date — is read from that file's own frontmatter at page
+load, and the counts on the index page are derived from what actually loaded.
+
+So there is nothing to keep in sync: edit the frontmatter and the listing,
+filters and counts all follow. A static host can't enumerate a directory, which
+is the only reason the slug list exists.
+
+A slug listed with no matching `.md` is skipped with a console warning rather
+than breaking the page.
 
 ### Recognised `difficulty` values
 
@@ -91,10 +97,21 @@ wherever you decide it belongs:
 
 ## Before you publish
 
-- [ ] Delete `posts/format-demo.md` **and** its entry in `posts/manifest.json`
 - [ ] Confirm no flags for still-live challenges are included
 - [ ] Confirm no real hostnames, IPs, or credentials appear anywhere
 - [ ] Check it renders at `http://localhost:8000` first
+
+## Local-only files
+
+`TEMPLATE.md` and `posts/format-demo.md` are gitignored. They stay on your disk
+as scaffolding but are never published.
+
+To preview the format demo locally, temporarily put its slug in
+`posts/manifest.json` — just don't commit that line:
+
+```json
+["format-demo"]
+```
 
 ---
 
@@ -104,7 +121,7 @@ wherever you decide it belongs:
 ctf-writeups/
 ├── index.html              # listing page (reads manifest.json)
 ├── writeup.html            # renders one post via ?post=<slug>
-├── TEMPLATE.md             # copy this for each new writeup
+├── TEMPLATE.md             # copy this per writeup — gitignored, local only
 ├── .nojekyll               # tells GitHub Pages to skip Jekyll
 ├── assets/
 │   ├── css/style.css       # matched to pymite6941.is-a.dev
@@ -114,8 +131,8 @@ ctf-writeups/
 │       ├── index.js        # builds the listing
 │       └── writeup.js      # renders a single post
 └── posts/
-    ├── manifest.json       # the index — one entry per writeup
-    └── *.md                # the writeups
+    ├── manifest.json       # list of slugs only — metadata lives in the .md
+    └── *.md                # the writeups (frontmatter = source of truth)
 ```
 
 Markdown rendering uses `marked`, sanitising uses `DOMPurify`, and syntax

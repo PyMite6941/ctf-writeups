@@ -1,4 +1,13 @@
-/* index.js — builds the writeup listing from posts/manifest.json */
+/* index.js — builds the writeup listing.
+ *
+ * manifest.json holds ONLY a list of slugs. Every piece of displayed
+ * metadata (title, platform, category, difficulty, date) is read from the
+ * frontmatter of the markdown file itself, so the .md is the single source
+ * of truth and the counts below can never drift out of sync with reality.
+ *
+ * A static host can't enumerate a directory, which is the only reason the
+ * slug list exists at all.
+ */
 
 (function () {
   "use strict";
@@ -13,37 +22,75 @@
   init();
 
   async function init() {
+    let slugs;
     try {
       const res = await fetch("posts/manifest.json", { cache: "no-cache" });
       if (!res.ok) throw new Error(`manifest.json returned ${res.status}`);
-      posts = await res.json();
+      slugs = await res.json();
     } catch (err) {
       showError(err);
       return;
     }
 
-    if (!Array.isArray(posts)) {
-      showError(new Error("manifest.json must contain an array"));
+    if (!Array.isArray(slugs)) {
+      showError(new Error("manifest.json must contain an array of slugs"));
       return;
     }
 
-    // newest first
-    posts.sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")));
+    posts = (await Promise.all(slugs.map(loadPost))).filter(Boolean);
+
+    // Newest first. Undated posts sort last rather than disappearing.
+    posts.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 
     renderStats();
     renderFilters();
     renderList();
   }
 
-  function renderStats() {
-    const categories = new Set(posts.map((p) => p.category).filter(Boolean));
-    const platforms = new Set(posts.map((p) => p.platform).filter(Boolean));
+  /** Fetch one writeup and read its metadata straight from the frontmatter. */
+  async function loadPost(slug) {
+    if (typeof slug !== "string" || !/^[a-z0-9-]+$/i.test(slug)) {
+      console.warn(`Skipping invalid slug: ${JSON.stringify(slug)}`);
+      return null;
+    }
 
-    statsEl.innerHTML = `
-      <div class="stat"><span class="num">${posts.length}</span><span class="label">Writeups</span></div>
-      <div class="stat"><span class="num">${categories.size}</span><span class="label">Categories</span></div>
-      <div class="stat"><span class="num">${platforms.size}</span><span class="label">Platforms</span></div>
-    `;
+    try {
+      const res = await fetch(`posts/${slug}.md`, { cache: "no-cache" });
+      if (!res.ok) throw new Error(`returned ${res.status}`);
+      const { meta } = parseFrontmatter(await res.text());
+      return {
+        slug,
+        title: meta.title || slug,
+        platform: meta.platform || "",
+        category: meta.category || "",
+        difficulty: meta.difficulty || "",
+        date: meta.date || "",
+      };
+    } catch (err) {
+      // Listed but missing/unreadable — warn and carry on rather than
+      // taking the whole page down for one bad entry.
+      console.warn(`Could not load posts/${slug}.md — ${err.message}`);
+      return null;
+    }
+  }
+
+  /** Counts are derived from the loaded posts, never hardcoded. */
+  function renderStats() {
+    const count = (key) =>
+      new Set(posts.map((p) => p[key]).filter(Boolean)).size;
+
+    const stats = [
+      [posts.length, posts.length === 1 ? "Writeup" : "Writeups"],
+      [count("category"), count("category") === 1 ? "Category" : "Categories"],
+      [count("platform"), count("platform") === 1 ? "Platform" : "Platforms"],
+    ];
+
+    statsEl.innerHTML = stats
+      .map(
+        ([num, label]) =>
+          `<div class="stat"><span class="num">${num}</span><span class="label">${label}</span></div>`,
+      )
+      .join("");
   }
 
   function renderFilters() {
@@ -52,6 +99,7 @@
       ...new Set(posts.map((p) => p.category).filter(Boolean)),
     ];
 
+    // Nothing to filter between with 0 or 1 real category.
     if (categories.length <= 2) {
       filtersEl.innerHTML = "";
       return;
@@ -82,7 +130,7 @@
         : posts.filter((p) => p.category === activeCategory);
 
     if (visible.length === 0) {
-      listEl.innerHTML = `<li class="empty">No writeups here yet.</li>`;
+      listEl.innerHTML = `<li class="empty">No writeups published yet.</li>`;
       return;
     }
 
