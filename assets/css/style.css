@@ -1,4 +1,10 @@
-/* CTF Writeups — styling matched to pymite6941.is-a.dev */
+/* CTF Writeups — styling mirrored from portfolio-website/index.css
+ * so this reads as part of pymite6941.is-a.dev.
+ *
+ * Values below are copied from that stylesheet, not approximated. If the
+ * portfolio's palette or card treatment changes, update this to match.
+ * Note 'Google Sans' is not actually loaded there either — it falls back to
+ * the system sans-serif. Kept identical so both sites render the same. */
 
 :root {
   --bg-color: #0d1117;
@@ -6,27 +12,80 @@
   --text-muted: #8b949e;
   --link-color: #61afef;
   --card-bg: #161b22;
-  --border-color: #30363d;
+  --card-bg-hover: #1c2128;
   --button-color: #8957e5;
-  --code-bg: #1c2128;
+  --border-color: #30363d;
+  --code-bg: #21252b;
+  --code-color: #abb2bf;
+  --pill-bg: #282c34;
+
   --accent-green: #3fb950;
   --accent-yellow: #d29922;
   --accent-red: #f85149;
+
+  --font-sans: "Google Sans", sans-serif;
+  --font-mono: "Consolas", "Courier New", monospace;
+
+  color-scheme: dark;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--bg-color);
+  background-color: var(--bg-color);
+  overflow-x: hidden;
+}
+
+body {
   color: var(--text-color);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-    sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- nav (mirrors .nav in the portfolio) ---------- */
+
+.nav {
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  padding: 0 16px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(30, 33, 39, 0.82);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(62, 68, 81, 0.6);
+  position: sticky;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--link-color);
+  padding: 8px 4px;
+}
+
+.nav-btn {
+  background-color: var(--button-color);
+  color: #fff;
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: bold;
+  padding: 5px 10px;
+  text-decoration: none;
 }
 
 .wrap {
@@ -46,24 +105,35 @@ body {
 .site-head h1 {
   margin: 0 0 0.5rem;
   font-size: 2rem;
+  color: var(--text-color);
   letter-spacing: -0.02em;
 }
 
 .site-head p {
   margin: 0;
   color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.text-link,
+.back-link {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.18em;
+}
+
+.text-link:hover,
+.text-link:focus,
+.back-link:hover,
+.back-link:focus {
+  text-decoration-thickness: 2px;
 }
 
 .back-link {
   display: inline-block;
   margin-bottom: 1.25rem;
-  color: var(--link-color);
-  text-decoration: none;
   font-size: 0.9rem;
-}
-
-.back-link:hover {
-  text-decoration: underline;
 }
 
 /* ---------- listing ---------- */
@@ -71,132 +141,140 @@ body {
 .stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 20px;
   margin-bottom: 2rem;
 }
 
 .stat {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.85rem 1.25rem;
-  flex: 1 1 120px;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 18px 24px;
+  flex: 1 1 140px;
 }
 
 .stat .num {
   display: block;
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--link-color);
+  line-height: 1.2;
 }
 
 .stat .label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #c9d1d9;
+  font-size: 0.75rem;
+  font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.75px;
 }
 
 .filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 8px;
   margin-bottom: 1.5rem;
 }
 
 .filter-btn {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  border-radius: 999px;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.85rem;
-  cursor: pointer;
+  padding: 4px 12px;
+  background: var(--pill-bg);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--code-color);
   font-family: inherit;
-  transition: all 0.15s ease;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .filter-btn:hover {
-  border-color: var(--link-color);
+  background: var(--card-bg-hover);
   color: var(--text-color);
 }
 
 .filter-btn.active {
-  background: var(--button-color);
-  border-color: var(--button-color);
+  background-color: var(--button-color);
   color: #fff;
+  font-weight: bold;
 }
 
 .post-list {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: grid;
+  gap: 20px;
 }
 
+/* Card treatment copied from .card-container — lift + blue glow on hover,
+   no border (the portfolio uses background contrast instead). */
 .post-item {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  margin-bottom: 0.85rem;
-  transition: border-color 0.15s ease;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .post-item:hover {
-  border-color: var(--link-color);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(88, 166, 255, 0.2);
+  background-color: var(--card-bg-hover);
 }
 
 .post-item a {
   display: block;
-  padding: 1rem 1.25rem;
+  padding: 24px;
   text-decoration: none;
-  color: inherit;
+  color: var(--link-color);
 }
 
 .post-item h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1.1rem;
-  color: var(--link-color);
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  color: var(--text-color);
 }
 
 .post-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 8px;
   align-items: center;
   font-size: 0.8rem;
   color: var(--text-muted);
 }
 
+/* Mirrors .boxes — the portfolio's tech-stack pills. */
 .pill {
-  background: var(--code-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  padding: 0.15rem 0.65rem;
-  font-size: 0.75rem;
+  padding: 4px 8px;
+  display: inline-block;
+  background: var(--pill-bg);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--code-color);
   white-space: nowrap;
 }
 
 .pill.diff-Intro,
 .pill.diff-Easy {
   color: var(--accent-green);
-  border-color: rgba(63, 185, 80, 0.4);
 }
 
 .pill.diff-Medium {
   color: var(--accent-yellow);
-  border-color: rgba(210, 153, 34, 0.4);
 }
 
 .pill.diff-Hard {
   color: var(--accent-red);
-  border-color: rgba(248, 81, 73, 0.4);
 }
 
 .empty {
-  background: var(--card-bg);
-  border: 1px dashed var(--border-color);
-  border-radius: 8px;
-  padding: 2rem;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 32px 24px;
   text-align: center;
   color: var(--text-muted);
 }
@@ -210,61 +288,82 @@ body {
 }
 
 .post-header h1 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 12px;
   font-size: 1.9rem;
+  color: var(--text-color);
   letter-spacing: -0.02em;
+}
+
+.article {
+  line-height: 1.6;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.article h2,
+.article h3,
+.article h4 {
+  color: var(--text-color);
 }
 
 .article h2 {
   margin-top: 2.25rem;
   padding-bottom: 0.35rem;
   border-bottom: 1px solid var(--border-color);
-  font-size: 1.35rem;
+  font-size: 1.4rem;
 }
 
 .article h3 {
   margin-top: 1.75rem;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+}
+
+.article strong {
+  color: var(--text-color);
 }
 
 .article a {
   color: var(--link-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.18em;
 }
 
 .article img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--border-color);
 }
 
 .article blockquote {
   margin: 1.25rem 0;
-  padding: 0.75rem 1.25rem;
+  padding: 12px 20px;
   border-left: 3px solid var(--button-color);
-  background: var(--card-bg);
-  border-radius: 0 6px 6px 0;
-  color: var(--text-muted);
+  background-color: var(--card-bg);
+  border-radius: 0 8px 8px 0;
 }
 
 .article blockquote p {
   margin: 0.35rem 0;
 }
 
+/* Mirrors .code-segment. */
 .article code {
-  background: var(--code-bg);
+  background-color: var(--code-bg);
+  color: var(--code-color);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 0.12em 0.4em;
-  font-size: 0.88em;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
 }
 
 .article pre {
-  background: var(--code-bg);
-  border: 1px solid var(--border-color);
+  padding: 15px;
+  background-color: var(--code-bg);
+  color: var(--code-color);
   border-radius: 8px;
-  padding: 1rem;
+  border: 1px solid var(--border-color);
   overflow-x: auto;
 }
 
@@ -272,7 +371,7 @@ body {
   background: none;
   border: none;
   padding: 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1.5;
 }
 
@@ -284,18 +383,19 @@ body {
 .article table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .article th,
 .article td {
   border: 1px solid var(--border-color);
-  padding: 0.5rem 0.75rem;
+  padding: 8px 12px;
   text-align: left;
 }
 
 .article th {
-  background: var(--card-bg);
+  background-color: var(--card-bg);
+  color: var(--text-color);
   font-weight: 600;
 }
 
@@ -305,14 +405,17 @@ body {
   margin: 2rem 0;
 }
 
-/* ---------- footer ---------- */
+/* ---------- footer (mirrors .foot) ---------- */
 
 .site-foot {
   border-top: 1px solid var(--border-color);
   margin-top: 3rem;
-  padding-top: 1.5rem;
+  padding: 32px 0 24px;
+}
+
+.site-foot p {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .site-foot a {
@@ -323,7 +426,7 @@ body {
 
 @media (max-width: 600px) {
   .wrap {
-    padding: 1.25rem 1rem 3rem;
+    padding: 1.5rem 1rem 3rem;
   }
   .site-head h1 {
     font-size: 1.6rem;
@@ -331,7 +434,13 @@ body {
   .post-header h1 {
     font-size: 1.45rem;
   }
+  .article {
+    font-size: 1rem;
+  }
   .stat {
     flex: 1 1 100%;
+  }
+  .post-item a {
+    padding: 18px;
   }
 }
