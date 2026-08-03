@@ -68,10 +68,17 @@
       .filter(Boolean)
       .join("");
 
+    // Only linkify http(s) so a stray value can't become a javascript: URL.
+    const isSafeUrl = /^https?:\/\//i.test(meta.url || "");
+    const link = isSafeUrl
+      ? `<p style="margin:.6rem 0 0"><a class="text-link" href="${esc(meta.url)}" target="_blank" rel="noopener noreferrer">View the challenge →</a></p>`
+      : "";
+
     headerEl.innerHTML = `
       <h1>${esc(title)}</h1>
       <div class="post-meta">${pills}</div>
       ${meta.tools ? `<p class="post-meta" style="margin-top:.6rem">Tools: ${esc(meta.tools)}</p>` : ""}
+      ${link}
     `;
   }
 
