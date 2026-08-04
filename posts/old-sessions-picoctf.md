@@ -40,9 +40,6 @@ attack surface, not the login form.
 - **Scanned DevTools tabs** — moved to the Network tab looking for cookie
   handling, but that didn't surface the bug directly either.
 
-<!-- Do not skip this section. It is the most valuable part of the writeup:
-     it's what proves the work is yours rather than a looked-up solution. -->
-
 ## The solve
 
 1. Create an account normally — registration just works. Now check the cookies
@@ -61,7 +58,7 @@ attack surface, not the login form.
 
 ## Flag
 
-`picoCTF{s3t_s3ss10n_3xp1rat10n5_53a328ed}`
+`picoCTF{REDACTED}` — withheld, challenge is still live.
 
 ## What I learned
 
