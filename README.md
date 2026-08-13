@@ -129,7 +129,7 @@ Rules that matter:
 - **Redact flags for challenges that are still live** — write
   `picoCTF{REDACTED}` and say why.
 - `**Platform:**` overrides the folder default, so a Cylab Academy challenge
-  filed under `picoctf/` is still labelled correctly.
+  filed under `picoctf/` is still labeled correctly.
 - The slug comes from the `# Title`, so renaming a title changes its URL.
 
 For CryptoHack, the stubs already exist — `cryptohack_stubber.py` pulled every

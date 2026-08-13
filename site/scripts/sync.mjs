@@ -2,7 +2,7 @@
 /**
  * sync.mjs — build the Astro site's content from the sources of truth.
  *
- * The site has two halves: challenges Matt is *practising* on other people's
+ * The site has two halves: challenges Matt is *practicing* on other people's
  * platforms, and challenges he *authored* himself.
  *
  * Reads:
