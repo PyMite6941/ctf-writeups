@@ -97,6 +97,23 @@ for (const file of labPages) {
   if (fm.flagHash && !/^[a-f0-9]{64}$/.test(fm.flagHash)) {
     failures.push(`labs/${file}: flagHash is not a SHA-256 digest — is the flag itself in there?`)
   }
+
+  /* Scaffolded prose that was never written. Publishing a challenge whose brief
+     still says "What the player has" is worse than not publishing it. */
+  if (/What the player has, and what they're looking for|Nudge them toward the right question/.test(text)) {
+    failures.push(`labs/${file}: brief or hint is still the scaffolded placeholder.`)
+  }
+}
+
+/* 6a. A challenge published with the placeholder flag is unsolvable. */
+const flagsPath = join(ROOT, '..', 'challenges', 'flags.json')
+if (existsSync(flagsPath)) {
+  const flags = JSON.parse(readFileSync(flagsPath, 'utf-8'))
+  for (const [slug, flag] of Object.entries(flags)) {
+    if (/CHANGE_ME/.test(flag) && labPages.includes(`${slug}.md`)) {
+      failures.push(`challenges/flags.json: "${slug}" is published but its flag is still the placeholder.`)
+    }
+  }
 }
 
 /* 6b. The committed challenge SOURCES must not give the answer away either.

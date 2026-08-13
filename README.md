@@ -41,11 +41,17 @@ site/                     the Astro app
 ## Writing a challenge
 
 ```bash
-cp challenges/TEMPLATE.md challenges/my-challenge.md
-# write the brief; put any files in challenges/files/ and list them in Files:
-# put the answer in challenges/flags.json under the slug "my-challenge"
-cd site && npm run refresh
+cd site
+npm run new -- my-challenge "My Challenge"   # scaffolds all three files
+# write the brief; put any files in challenges/files/ and list them on Files:
+# set the real flag in challenges/flags.json
+npm run refresh
 ```
+
+`npm run new` creates the public brief, a private notes file (what it teaches,
+intended solution, reference solver, playtest checklist), and a placeholder flag
+entry. The build refuses to publish a challenge whose brief is still the
+scaffold or whose flag is still the placeholder.
 
 The flag never goes in the `.md`. It lives in `challenges/flags.json`, which is
 gitignored; `sync.mjs` publishes only a SHA-256 of it, and the page checks
