@@ -20,6 +20,9 @@ challenges/               challenges I wrote — the Challenge Lab
   files/                   attachments players download
   flags.json               GITIGNORED — the answers
   TEMPLATE.md              copy this to start a new one
+my-tools/                  scripts I wrote, published on the Tools page
+  tools.json               manifest: name, description, widget type per tool
+  *.py                     source scripts, downloadable from /tools/
 writeups/                 practice writeups — one .md per challenge
   picoctf/                 picoGym / other platforms
   cryptohack/<category>/   GITIGNORED — private notebook, see policy below
@@ -34,7 +37,8 @@ site/                     the Astro app
   src/content/writeups/    GENERATED but committed — only publishable pages
   src/content/labs/        GENERATED but committed — flag replaced by its hash
   src/data/*.json          GENERATED but committed — tracker indexes
-  src/pages/               index, challenges, lab/, search, writeup/[slug]
+  src/pages/               index, challenges, lab/, search, tools, writeup/[slug]
+  public/tools/            GENERATED but committed — the downloadable .py scripts
 .github/workflows/deploy.yml   builds and publishes to GitHub Pages
 ```
 
@@ -164,6 +168,25 @@ git add -A && git commit -m "Add ASCII writeup" && git push
 
 `npm run build` is the real check: `dev` will not catch a broken production
 build. Requires Node >= 22.12.
+
+## The Tools page
+
+The Tools page at `/tools/` runs the small scripts from `my-tools/` in the
+browser — ASCII, hex/Base64, Caesar, bytes-to-long, and XOR — with a download
+button for each Python original.
+
+- `my-tools/tools.json` is the manifest. Each entry names the `.py` file, a
+  display name and description, and which widget type to render (the widget
+  markup lives in `site/src/pages/tools.astro`, keyed by that `widget` field).
+- `sync.mjs` copies each manifest script to `site/public/tools/` (the
+  download) and emits `site/src/data/tools.json` (what the page renders from).
+- Adding a tool: drop the `.py` in `my-tools/`, add a manifest entry, then
+  `npm run refresh`.
+
+Widgets are plain client-side JS — the same math as the Python originals, but
+nothing is sent anywhere and the site stays static. Where the browser version
+differs from the CLI script, the description says so (e.g. XOR repeats the key
+cyclically).
 
 ## Deploying
 

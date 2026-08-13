@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "ascii-character-solver",
+    "file": "ascii-character-solver.py",
+    "name": "ASCII Character Solver",
+    "description": "Turn ASCII decimal values into their characters.",
+    "category": "Encoding",
+    "widget": "ascii"
+  },
+  {
+    "slug": "hex-converter",
+    "file": "hex-converter.py",
+    "name": "Hex Converter",
+    "description": "Hex to bytes and back, plus hex to Base64.",
+    "category": "Encoding",
+    "widget": "hex"
+  },
+  {
+    "slug": "caesar-cipher-solver",
+    "file": "caesar-cipher-solver.py",
+    "name": "Caesar Cipher Solver",
+    "description": "Decrypt a Caesar shift with a known key, or try all twenty-five at once.",
+    "category": "Classical ciphers",
+    "widget": "caesar"
+  },
+  {
+    "slug": "bytes-longs",
+    "file": "byte-and-longs.py",
+    "name": "Bytes <-> Longs",
+    "description": "Convert between byte strings and big integers — the bread and butter of RSA challenges.",
+    "category": "Crypto primitives",
+    "widget": "bytes-long"
+  },
+  {
+    "slug": "xor",
+    "file": "xor.py",
+    "name": "XOR",
+    "description": "XOR byte data against a hex key. The key repeats cyclically, so single-byte and multi-byte keys both work.",
+    "category": "Crypto primitives",
+    "widget": "xor"
+  }
+]

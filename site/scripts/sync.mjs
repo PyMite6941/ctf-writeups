@@ -16,7 +16,9 @@
  *   src/content/labs/<slug>.md       authored challenges, flag replaced by a hash
  *   src/data/challenges.json         practice tracker index
  *   src/data/labs.json               authored challenge index
+ *   src/data/tools.json              the tools index
  *   public/challenge-files/...       attachments players download
+ *   public/tools/...                 the my-tools scripts players can download
  *
  * CryptoHack is deliberately absent: their FAQ restricts publishing writeups,
  * so that material stays a private local notebook (see ../writeups/cryptohack,
@@ -41,6 +43,9 @@ const OUT_CONTENT = join(ROOT, 'src', 'content', 'writeups')
 const OUT_LABS = join(ROOT, 'src', 'content', 'labs')
 const OUT_DATA = join(ROOT, 'src', 'data')
 const OUT_FILES = join(ROOT, 'public', 'challenge-files')
+const TOOLS_MANIFEST = join(REPO, 'my-tools', 'tools.json')
+const TOOLS_SRC = join(REPO, 'my-tools')
+const OUT_TOOLS = join(ROOT, 'public', 'tools')
 
 /* Platforms whose challenges appear in the practice tracker. CryptoHack is
    excluded on purpose — see the file header. */
@@ -283,6 +288,55 @@ function syncLabs() {
   return index
 }
 
+/**
+ * Build the tools half of the site.
+ *
+ * The scripts Matt keeps reaching for live in ../my-tools/ and are committed.
+ * ../my-tools/tools.json is the manifest: it says which .py files to publish,
+ * what to call them, and which in-browser widget type the Tools page should
+ * render for each. sync copies the scripts for download and emits an index the
+ * page renders from.
+ */
+function syncTools() {
+  if (!existsSync(TOOLS_MANIFEST)) {
+    console.warn('[sync] no my-tools/tools.json manifest — skipping tools')
+    return []
+  }
+
+  mkdirSync(OUT_TOOLS, { recursive: true })
+  const manifest = JSON.parse(readFileSync(TOOLS_MANIFEST, 'utf-8'))
+  const emitted = new Set()
+  const index = []
+
+  for (const tool of manifest) {
+    const src = join(TOOLS_SRC, tool.file)
+    if (!existsSync(src)) {
+      console.warn(`[!] tool file not found: ${tool.file}`)
+      continue
+    }
+    copyFileSync(src, join(OUT_TOOLS, tool.file))
+    emitted.add(tool.file)
+    index.push({
+      slug: slugify(tool.name) || tool.file.replace(/\.py$/, ''),
+      file: tool.file,
+      name: tool.name,
+      description: tool.description || '',
+      category: tool.category || 'Utility',
+      widget: tool.widget || '',
+    })
+  }
+
+  /* Drop downloads for tools removed from the manifest. unlinkSync, not
+     rmSync: rmSync silently no-ops against this path under OneDrive on
+     Windows (see the writeup purge below). */
+  for (const stale of readdirSync(OUT_TOOLS).filter((f) => f.endsWith('.py') && !emitted.has(f))) {
+    unlinkSync(join(OUT_TOOLS, stale))
+  }
+
+  writeFileSync(join(OUT_DATA, 'tools.json'), JSON.stringify(index, null, 2) + '\n', 'utf-8')
+  return index
+}
+
 function main() {
   mkdirSync(OUT_CONTENT, { recursive: true })
   mkdirSync(OUT_DATA, { recursive: true })
@@ -383,6 +437,9 @@ function main() {
 
   const labs = syncLabs()
   console.log(`[sync] authored challenges: ${labs.length} (${labs.filter((l) => l.flagHash).length} with a flag checker)`)
+
+  const tools = syncTools()
+  console.log(`[sync] tools: ${tools.length} (${tools.filter((t) => t.widget).length} with an in-browser widget)`)
 }
 
 main()

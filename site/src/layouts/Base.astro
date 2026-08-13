@@ -47,6 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href
           <a href={`${import.meta.env.BASE_URL}`} class:list={{ active: active === 'home' }}>Home</a>
           <a href={`${import.meta.env.BASE_URL}challenges/`} class:list={{ active: active === 'challenges' }}>Practice</a>
           <a href={`${import.meta.env.BASE_URL}lab/`} class:list={{ active: active === 'lab' }}>Challenge Lab</a>
+          <a href={`${import.meta.env.BASE_URL}tools/`} class:list={{ active: active === 'tools' }}>Tools</a>
           <a href={`${import.meta.env.BASE_URL}search/`} class:list={{ active: active === 'search' }}>Search</a>
           <a class="nav-cta" href="https://pymite6941.is-a.dev" target="_blank" rel="noopener">
             Portfolio <span aria-hidden="true">↗</span>
@@ -70,6 +71,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href
           <a href={`${import.meta.env.BASE_URL}`}>Home</a> ·
           <a href={`${import.meta.env.BASE_URL}challenges/`}>Practice</a> ·
           <a href={`${import.meta.env.BASE_URL}lab/`}>Challenge Lab</a> ·
+          <a href={`${import.meta.env.BASE_URL}tools/`}>Tools</a> ·
           <a href={`${import.meta.env.BASE_URL}search/`}>Search</a> ·
           <a href="https://pymite6941.is-a.dev" target="_blank" rel="noopener">Portfolio</a>
         </p>

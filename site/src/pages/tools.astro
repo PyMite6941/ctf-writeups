@@ -1,0 +1,219 @@
+---
+import Base from '../layouts/Base.astro'
+import tools from '../data/tools.json'
+
+/* Per-widget markup, keyed by the `widget` field in my-tools/tools.json. The
+   page data comes from sync.mjs so the list and downloads update with the
+   manifest, but each tool's controls are hand-shaped here because no two take
+   the same input. Keep this .astro frontmatter ASCII-only — the Astro compiler
+   slices it by byte offset and multibyte characters corrupt the module. */
+const WIDGETS = {
+  ascii: `
+    <label for="t-ascii-in">ASCII values — space or comma separated</label>
+    <textarea class="w-in" id="t-ascii-in" rows="3" placeholder="99 114 121 112 116 111 123 65 83 67 73 73 125" spellcheck="false"></textarea>
+    <button type="button" class="btn" data-run>Convert to text</button>
+    <pre class="widget-out" aria-live="polite"></pre>`,
+  hex: `
+    <div class="w-row">
+      <label><input type="radio" name="t-hex-mode" value="raw" checked /> Hex to bytes (as text)</label>
+      <label><input type="radio" name="t-hex-mode" value="b64" /> Hex to Base64</label>
+    </div>
+    <input class="w-in mono" id="t-hex-in" placeholder="63727970746f7b41534349495f7072316e7434626c337d" spellcheck="false" />
+    <button type="button" class="btn" data-run>Convert</button>
+    <pre class="widget-out" aria-live="polite"></pre>`,
+  caesar: `
+    <label for="t-caesar-in">Ciphertext</label>
+    <input class="w-in" id="t-caesar-in" placeholder="gur unpxre rngf... (try this: shift 13)" spellcheck="false" />
+    <label for="t-caesar-shift">Shift <span class="muted">— blank tries all 25</span></label>
+    <input class="w-in mono" id="t-caesar-shift" type="number" min="1" max="25" placeholder="13" />
+    <button type="button" class="btn" data-run>Decrypt</button>
+    <pre class="widget-out" aria-live="polite"></pre>`,
+  'bytes-long': `
+    <div class="w-row">
+      <label><input type="radio" name="t-bl-mode" value="b2l" checked /> bytes to long</label>
+      <label><input type="radio" name="t-bl-mode" value="l2b" /> long to bytes</label>
+    </div>
+    <input class="w-in mono" id="t-bl-in" placeholder="bytes mode: hello / long mode: 4781442057249517349786024" spellcheck="false" />
+    <button type="button" class="btn" data-run>Convert</button>
+    <pre class="widget-out" aria-live="polite"></pre>`,
+  xor: `
+    <label for="t-xor-a">Bytes (hex)</label>
+    <input class="w-in mono" id="t-xor-a" placeholder="63727970746f7b..." spellcheck="false" />
+    <label for="t-xor-b">Key (hex) — repeats across the data</label>
+    <input class="w-in mono" id="t-xor-b" placeholder="13" spellcheck="false" />
+    <button type="button" class="btn" data-run>XOR</button>
+    <pre class="widget-out" aria-live="polite"></pre>`,
+}
+---
+
+<Base
+  title="Tools — CTF Writeups"
+  active="tools"
+  description="Small CTF utilities — ASCII, hex and Base64, Caesar, bytes-to-long, and XOR — that run right in the browser, with the original Python scripts to download."
+>
+  <div class="wrap">
+    <header class="page-head">
+      <h1>Tools</h1>
+      <p class="sub">
+        The small scripts I keep reaching for while solving. Each one runs here in your
+        browser — grab the Python original if you want it offline.
+      </p>
+    </header>
+
+    <div class="tool-grid">
+      {tools.map((tool) => (
+        <section class="card tool-card" id={tool.slug}>
+          <div class="card-top">
+            <span class="name">{tool.name}</span>
+            <a class="btn btn-download" href={`${import.meta.env.BASE_URL}tools/${tool.file}`} download={tool.file}>
+              {tool.file}
+            </a>
+          </div>
+          <div class="tags" style="margin-top:2px">
+            <span class="pill">{tool.category}</span>
+          </div>
+          <p class="muted tool-desc">{tool.description}</p>
+          <div class="widget" data-tool={tool.widget} set:html={WIDGETS[tool.widget]} />
+        </section>
+      ))}
+    </div>
+  </div>
+
+  <script>
+    function hexToBytes(hex) {
+      let h = String(hex).replace(/\s+/g, '').toLowerCase()
+      if (!/^[0-9a-f]+$/.test(h)) throw new Error('not valid hex')
+      if (h.length % 2 === 1) h = '0' + h
+      const bytes = new Uint8Array(h.length / 2)
+      for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(h.substr(i * 2, 2), 16)
+      return bytes
+    }
+
+    function printable(bytes) {
+      let out = ''
+      for (const b of bytes) out += b >= 32 && b < 127 ? String.fromCharCode(b) : '·'
+      return out
+    }
+
+    function shiftDecrypt(text, shift) {
+      let out = ''
+      for (const ch of text) {
+        if (/[a-z]/.test(ch)) out += String.fromCharCode(((ch.charCodeAt(0) - 97 - shift + 26) % 26) + 97)
+        else if (/[A-Z]/.test(ch)) out += String.fromCharCode(((ch.charCodeAt(0) - 65 - shift + 26) % 26) + 65)
+        else out += ch
+      }
+      return out
+    }
+
+    const handlers = {
+      ascii(widget) {
+        const raw = widget.querySelector('.w-in').value.trim()
+        if (!raw) return show(widget, '')
+        const nums = raw.match(/-?\d+/g)
+        if (!nums) return show(widget, 'No numbers found.')
+        const parts = nums.map((n) => {
+          const v = parseInt(n, 10)
+          return v >= 0 && v <= 127 ? String.fromCharCode(v) : `?(${v})`
+        })
+        show(widget, parts.join(''))
+      },
+
+      hex(widget) {
+        const raw = widget.querySelector('.w-in').value.trim()
+        if (!raw) return show(widget, '')
+        const mode = widget.querySelector('input[name="t-hex-mode"]:checked').value
+        try {
+          const bytes = hexToBytes(raw)
+          if (mode === 'b64') {
+            let binary = ''
+            for (const b of bytes) binary += String.fromCharCode(b)
+            show(widget, btoa(binary))
+          } else {
+            if (bytes.length === 0) return show(widget, 'Empty hex string.')
+            const spaced = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join(' ')
+            show(widget, spaced + '\n' + printable(bytes))
+          }
+        } catch (e) {
+          show(widget, e.message)
+        }
+      },
+
+      caesar(widget) {
+        const text = widget.querySelector('.w-in').value
+        if (!text) return show(widget, '')
+        const shiftEl = widget.querySelector('#t-caesar-shift')
+        const shiftRaw = shiftEl.value.trim()
+        if (shiftRaw === '') {
+          const lines = []
+          for (let s = 1; s < 26; s++) lines.push(`Shift ${String(s).padStart(2, ' ')}: ${shiftDecrypt(text, s)}`)
+          show(widget, lines.join('\n'))
+        } else {
+          const s = parseInt(shiftRaw, 10)
+          if (isNaN(s) || s < 1 || s > 25) return show(widget, 'Enter a shift between 1 and 25 — or leave it blank to try all.')
+          shiftEl.value = String(s)
+          show(widget, shiftDecrypt(text, s))
+        }
+      },
+
+      'bytes-long'(widget) {
+        const raw = widget.querySelector('.w-in').value.trim()
+        if (!raw) return show(widget, '')
+        const mode = widget.querySelector('input[name="t-bl-mode"]:checked').value
+        if (mode === 'b2l') {
+          const bytes = new TextEncoder().encode(raw)
+          let n = 0n
+          for (const b of bytes) n = (n << 8n) | BigInt(b)
+          show(widget, n.toString())
+        } else {
+          if (!/^\d+$/.test(raw)) return show(widget, 'Long mode expects a plain integer; switch to "bytes to long" for text.')
+          let n = BigInt(raw)
+          const bytes = []
+          while (n > 0n) {
+            bytes.unshift(Number(n & 0xffn))
+            n >>= 8n
+          }
+          const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+          show(widget, `0x${hex || '00'}\n${printable(bytes)}`)
+        }
+      },
+
+      xor(widget) {
+        const inputs = widget.querySelectorAll('.w-in')
+        const ra = inputs[0].value.trim()
+        const rb = inputs[1].value.trim()
+        if (!ra || !rb) return show(widget, 'Enter both a hex string and a hex key.')
+        try {
+          const a = hexToBytes(ra)
+          const key = hexToBytes(rb)
+          if (!a.length || !key.length) return show(widget, 'Empty after parsing — check your hex.')
+          const res = a.map((byte, i) => byte ^ key[i % key.length])
+          const hex = Array.from(res, (b) => b.toString(16).padStart(2, '0')).join('')
+          show(widget, `0x${hex}\n${printable(res)}`)
+        } catch (e) {
+          show(widget, e.message)
+        }
+      },
+    }
+
+    function show(widget, text) {
+      const pre = widget.querySelector('.widget-out')
+      if (pre) pre.textContent = text
+    }
+
+    document.querySelectorAll('.widget[data-tool]').forEach((widget) => {
+      const run = handlers[widget.dataset.tool]
+      if (!run) return
+      const go = () => run(widget)
+      const btn = widget.querySelector('[data-run]')
+      if (btn) btn.addEventListener('click', go)
+      widget.querySelectorAll('input, textarea').forEach((el) => {
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault()
+            go()
+          }
+        })
+      })
+    })
+  </script>
+</Base>
