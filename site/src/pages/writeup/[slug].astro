@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getCollection, render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const writeups = await getCollection('writeups')
+  return writeups.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+const { title, site, siteLabel, category, points, url, status, solvedDate } = entry.data
+const fmtDate = solvedDate ? new Date(solvedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''
+---
+
+<Base title={`${title} — CTF Writeups`} description={`${title} — ${siteLabel} ${category} challenge. ${status === 'solved' ? `Solved on ${fmtDate}` : 'Not solved yet.'}`}>
+  <div class="wrap">
+    <div class="breadcrumb"><a href={`${import.meta.env.BASE_URL}`}>Home</a> / <a href={`${import.meta.env.BASE_URL}challenges/`}>Challenges</a> / {title}</div>
+
+    <header class="post-head" data-pagefind-body data-pagefind-meta={`title: ${title}`}>
+      <h1>{title}</h1>
+      <div class="post-meta mono" style="font-size:13px" data-pagefind-body>
+        <span class={`pill site-${site}`} data-pagefind-filter={`site: ${site}`}>{siteLabel}</span>
+        <span class={status === 'solved' ? 'pill' : 'pill'} data-pagefind-filter={`status: ${status}`}>{status === 'solved' ? 'Solved' : 'Unsolved'}</span>
+        <span class="pill" data-pagefind-filter={`category: ${category}`}>{category}</span>
+        {points > 0 && <span class="pill">{points} pts</span>}
+        {fmtDate && <span class="pill">{fmtDate}</span>}
+        {url && <a href={url} target="_blank" rel="noopener">Play challenge ↗</a>}
+      </div>
+      {status === 'unsolved' && (
+        <p class="muted" style="font-size:14px">
+          Not solved yet — this page tracks the challenge and its description. The solution will land here when it's cracked.
+        </p>
+      )}
+    </header>
+
+    <article class="prose" data-pagefind-body>
+      <Content />
+    </article>
+
+    <nav style="margin-top:40px;display:flex;gap:14px;font-size:14px">
+      <a href={`${import.meta.env.BASE_URL}challenges/`}>← All challenges</a>
+    </nav>
+  </div>
+</Base>

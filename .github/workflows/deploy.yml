@@ -1,0 +1,76 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    # Only rebuild when something the site is made of changes.
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+# Allow the workflow to publish to Pages via OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; let a newer push finish rather than cancelling it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - run: npm ci
+
+      # CI does NOT run `sync`. The CryptoHack sources it reads are private
+      # (see .gitignore) and are not in this checkout; sync is an authoring
+      # step run locally, and its policy-cleared output is committed.
+      - name: Check the committed content is present
+        run: |
+          test -f src/data/challenges.json
+          test -d src/content/writeups
+
+      - run: npm run build
+
+      - name: Check the build produced a site
+        run: |
+          test -f dist/index.html
+          test -f dist/challenges/index.html
+          test -d dist/pagefind
+          grep -q 'challenge-data' dist/challenges/index.html
+
+      # Nothing on the published site may carry a CryptoHack challenge
+      # description, and no page may exist for a CryptoHack challenge worth
+      # more than 25 points. Fail the deploy rather than publish a violation.
+      - name: Check CryptoHack publishing policy
+        run: node scripts/check-policy.mjs
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,366 @@
+[
+  {
+    "name": "Obedient Cat",
+    "category": "General Skills",
+    "id": 147,
+    "url": "https://play.picoctf.org/practice/challenge/147",
+    "points": 5
+  },
+  {
+    "name": "Wave a flag",
+    "category": "General Skills",
+    "id": 170,
+    "url": "https://play.picoctf.org/practice/challenge/170",
+    "points": 10
+  },
+  {
+    "name": "Python Wrangling",
+    "category": "General Skills",
+    "id": 166,
+    "url": "https://play.picoctf.org/practice/challenge/166",
+    "points": 10
+  },
+  {
+    "name": "Nice netcat...",
+    "category": "General Skills",
+    "id": 156,
+    "url": "https://play.picoctf.org/practice/challenge/156",
+    "points": 15
+  },
+  {
+    "name": "Static ain't always noise",
+    "category": "General Skills",
+    "id": 163,
+    "url": "https://play.picoctf.org/practice/challenge/163",
+    "points": 20
+  },
+  {
+    "name": "Tab, Tab, Attack",
+    "category": "General Skills",
+    "id": 176,
+    "url": "https://play.picoctf.org/practice/challenge/176",
+    "points": 20
+  },
+  {
+    "name": "Magikarp Ground Mission",
+    "category": "General Skills",
+    "id": 189,
+    "url": "https://play.picoctf.org/practice/challenge/189",
+    "points": 30
+  },
+  {
+    "name": "Lets Warm Up",
+    "category": "General Skills",
+    "id": 22,
+    "url": "https://play.picoctf.org/practice/challenge/22",
+    "points": 50
+  },
+  {
+    "name": "Warmed Up",
+    "category": "General Skills",
+    "id": 58,
+    "url": "https://play.picoctf.org/practice/challenge/58",
+    "points": 50
+  },
+  {
+    "name": "2Warm",
+    "category": "General Skills",
+    "id": 86,
+    "url": "https://play.picoctf.org/practice/challenge/86",
+    "points": 50
+  },
+  {
+    "name": "Super SSH",
+    "category": "General Skills",
+    "id": 424,
+    "url": "https://play.picoctf.org/practice/challenge/424",
+    "points": 25
+  },
+  {
+    "name": "Commitment Issues",
+    "category": "General Skills",
+    "id": 411,
+    "url": "https://play.picoctf.org/practice/challenge/411",
+    "points": 50
+  },
+  {
+    "name": "Time Machine",
+    "category": "General Skills",
+    "id": 425,
+    "url": "https://play.picoctf.org/practice/challenge/425",
+    "points": 50
+  },
+  {
+    "name": "Binary Search",
+    "category": "General Skills",
+    "id": 442,
+    "url": "https://play.picoctf.org/practice/challenge/442",
+    "points": 0
+  },
+  {
+    "name": "endianness",
+    "category": "General Skills",
+    "id": 414,
+    "url": "https://play.picoctf.org/practice/challenge/414",
+    "points": 0
+  },
+  {
+    "name": "Collaborative Development",
+    "category": "General Skills",
+    "id": 410,
+    "url": "https://play.picoctf.org/practice/challenge/410",
+    "points": 0
+  },
+  {
+    "name": "Blame Game",
+    "category": "General Skills",
+    "id": 405,
+    "url": "https://play.picoctf.org/practice/challenge/405",
+    "points": 0
+  },
+  {
+    "name": "GET aHEAD",
+    "category": "Web Exploitation",
+    "id": 132,
+    "url": "https://play.picoctf.org/practice/challenge/132",
+    "points": 20
+  },
+  {
+    "name": "Cookies",
+    "category": "Web Exploitation",
+    "id": 173,
+    "url": "https://play.picoctf.org/practice/challenge/173",
+    "points": 40
+  },
+  {
+    "name": "Insp3ct0r",
+    "category": "Web Exploitation",
+    "id": 18,
+    "url": "https://play.picoctf.org/practice/challenge/18",
+    "points": 50
+  },
+  {
+    "name": "Scavenger Hunt",
+    "category": "Web Exploitation",
+    "id": 161,
+    "url": "https://play.picoctf.org/practice/challenge/161",
+    "points": 50
+  },
+  {
+    "name": "Bookmarklet",
+    "category": "Web Exploitation",
+    "id": 406,
+    "url": "https://play.picoctf.org/practice/challenge/406",
+    "points": 50
+  },
+  {
+    "name": "WebDecode",
+    "category": "Web Exploitation",
+    "id": 427,
+    "url": "https://play.picoctf.org/practice/challenge/427",
+    "points": 50
+  },
+  {
+    "name": "Some Assembly Required 1",
+    "category": "Web Exploitation",
+    "id": 152,
+    "url": "https://play.picoctf.org/practice/challenge/152",
+    "points": 70
+  },
+  {
+    "name": "Unminify",
+    "category": "Web Exploitation",
+    "id": 426,
+    "url": "https://play.picoctf.org/practice/challenge/426",
+    "points": 0
+  },
+  {
+    "name": "IntroToBurp",
+    "category": "Web Exploitation",
+    "id": 419,
+    "url": "https://play.picoctf.org/practice/challenge/419",
+    "points": 0
+  },
+  {
+    "name": "Information",
+    "category": "Forensics",
+    "id": 186,
+    "url": "https://play.picoctf.org/practice/challenge/186",
+    "points": 10
+  },
+  {
+    "name": "Matryoshka doll",
+    "category": "Forensics",
+    "id": 129,
+    "url": "https://play.picoctf.org/practice/challenge/129",
+    "points": 30
+  },
+  {
+    "name": "Glory of the Garden",
+    "category": "Forensics",
+    "id": 44,
+    "url": "https://play.picoctf.org/practice/challenge/44",
+    "points": 50
+  },
+  {
+    "name": "tunn3l v1s10n",
+    "category": "Forensics",
+    "id": 112,
+    "url": "https://play.picoctf.org/practice/challenge/112",
+    "points": 40
+  },
+  {
+    "name": "Wireshark doo dooo do doo...",
+    "category": "General Skills",
+    "id": 115,
+    "url": "https://play.picoctf.org/practice/challenge/115",
+    "points": 50
+  },
+  {
+    "name": "MacroHard WeakEdge",
+    "category": "Forensics",
+    "id": 130,
+    "url": "https://play.picoctf.org/practice/challenge/130",
+    "points": 60
+  },
+  {
+    "name": "Scan Surprise",
+    "category": "Forensics",
+    "id": 444,
+    "url": "https://play.picoctf.org/practice/challenge/444",
+    "points": 50
+  },
+  {
+    "name": "Verify",
+    "category": "Forensics",
+    "id": 450,
+    "url": "https://play.picoctf.org/practice/challenge/450",
+    "points": 50
+  },
+  {
+    "name": "Mod 26",
+    "category": "Cryptography",
+    "id": 144,
+    "url": "https://play.picoctf.org/practice/challenge/144",
+    "points": 10
+  },
+  {
+    "name": "Mind your Ps and Qs",
+    "category": "Cryptography",
+    "id": 162,
+    "url": "https://play.picoctf.org/practice/challenge/162",
+    "points": 20
+  },
+  {
+    "name": "Easy Peasy",
+    "category": "Cryptography",
+    "id": 125,
+    "url": "https://play.picoctf.org/practice/challenge/125",
+    "points": 40
+  },
+  {
+    "name": "The Numbers",
+    "category": "Cryptography",
+    "id": 68,
+    "url": "https://play.picoctf.org/practice/challenge/68",
+    "points": 50
+  },
+  {
+    "name": "New Caesar",
+    "category": "Cryptography",
+    "id": 158,
+    "url": "https://play.picoctf.org/practice/challenge/158",
+    "points": 60
+  },
+  {
+    "name": "interencdec",
+    "category": "Cryptography",
+    "id": 418,
+    "url": "https://play.picoctf.org/practice/challenge/418",
+    "points": 50
+  },
+  {
+    "name": "Mini RSA",
+    "category": "Cryptography",
+    "id": 188,
+    "url": "https://play.picoctf.org/practice/challenge/188",
+    "points": 70
+  },
+  {
+    "name": "Transformation",
+    "category": "Reverse Engineering",
+    "id": 104,
+    "url": "https://play.picoctf.org/practice/challenge/104",
+    "points": 20
+  },
+  {
+    "name": "keygenme-py",
+    "category": "General Skills",
+    "id": 121,
+    "url": "https://play.picoctf.org/practice/challenge/121",
+    "points": 30
+  },
+  {
+    "name": "crackme-py",
+    "category": "General Skills",
+    "id": 175,
+    "url": "https://play.picoctf.org/practice/challenge/175",
+    "points": 30
+  },
+  {
+    "name": "vault-door-training",
+    "category": "General Skills",
+    "id": 7,
+    "url": "https://play.picoctf.org/practice/challenge/7",
+    "points": 50
+  },
+  {
+    "name": "ARMssembly 0",
+    "category": "Reverse Engineering",
+    "id": 160,
+    "url": "https://play.picoctf.org/practice/challenge/160",
+    "points": 40
+  },
+  {
+    "name": "Shop",
+    "category": "Reverse Engineering",
+    "id": 134,
+    "url": "https://play.picoctf.org/practice/challenge/134",
+    "points": 50
+  },
+  {
+    "name": "speeds and feeds",
+    "category": "Reverse Engineering",
+    "id": 116,
+    "url": "https://play.picoctf.org/practice/challenge/116",
+    "points": 50
+  },
+  {
+    "name": "ARMssembly 1",
+    "category": "Reverse Engineering",
+    "id": 111,
+    "url": "https://play.picoctf.org/practice/challenge/111",
+    "points": 70
+  },
+  {
+    "name": "Stonks",
+    "category": "Binary Exploitation",
+    "id": 105,
+    "url": "https://play.picoctf.org/practice/challenge/105",
+    "points": 20
+  },
+  {
+    "name": "format string 0",
+    "category": "Binary Exploitation",
+    "id": 433,
+    "url": "https://play.picoctf.org/practice/challenge/433",
+    "points": 50
+  },
+  {
+    "name": "heap 0",
+    "category": "Binary Exploitation",
+    "id": 438,
+    "url": "https://play.picoctf.org/practice/challenge/438",
+    "points": 50
+  }
+]

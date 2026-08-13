@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getCollection } from 'astro:content'
+
+const labs = await getCollection('labs')
+const order = { easy: 0, medium: 1, hard: 2 }
+const sorted = [...labs].sort(
+  (a, b) =>
+    (order[a.data.difficulty] ?? 9) - (order[b.data.difficulty] ?? 9) ||
+    a.data.title.localeCompare(b.data.title),
+)
+---
+
+<Base title="Challenge Lab — CTF Writeups" active="lab"
+  description="CTF challenges I built myself — solve them in the browser, no account needed.">
+
+  <div class="wrap">
+    <header class="page-head">
+      <h1>Challenge Lab</h1>
+      <p class="sub">
+        Challenges I wrote. Each one has a brief, any files you need, and a flag box
+        that checks your answer in your own browser — no signup, nothing sent anywhere.
+      </p>
+    </header>
+
+    {sorted.length === 0 ? (
+      <div class="card" style="cursor:default">
+        <p style="margin:0 0 8px"><strong>Nothing here yet.</strong></p>
+        <p class="muted" style="margin:0">The first challenge is being built.</p>
+      </div>
+    ) : (
+      <ul class="grid" role="list" style="list-style:none;margin:0;padding:0">
+        {sorted.map((lab) => (
+          <li>
+            <a class="card" href={`${import.meta.env.BASE_URL}lab/${lab.id}/`}>
+              <div class="card-top">
+                <span class="name">{lab.data.title}</span>
+                {lab.data.points > 0 && <span class="pts">{lab.data.points} pts</span>}
+              </div>
+              <div class="tags">
+                <span class="pill">{lab.data.category}</span>
+                <span class={`pill diff-${lab.data.difficulty}`}>{lab.data.difficulty}</span>
+                {lab.data.files.length > 0 && <span class="pill">{lab.data.files.length} file</span>}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <section class="section">
+      <div class="card" style="cursor:default">
+        <p style="margin:0 0 8px"><strong>Why build my own?</strong></p>
+        <p class="muted" style="margin:0">
+          Solving a challenge teaches you the attack. Writing one makes you decide what the
+          weakness is, how much to give away, and what the player should walk away knowing —
+          which turns out to be a much harder question, and a better test of whether I
+          actually understood it.
+        </p>
+      </div>
+    </section>
+  </div>
+</Base>

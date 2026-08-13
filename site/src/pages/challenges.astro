@@ -1,0 +1,132 @@
+---
+import Base from '../layouts/Base.astro'
+import challenges from '../data/challenges.json'
+
+const categories = [...new Set(challenges.map((c) => c.category))].sort()
+/* Platform options come from the data, so adding a platform in sync.mjs shows
+   up in the filter without editing this page. */
+const sites = [...new Map(challenges.map((c) => [c.site, c.siteLabel])).entries()]
+  .sort((a, b) => a[1].localeCompare(b[1]))
+const JSON_DATA = JSON.stringify(challenges)
+---
+
+<Base title="All Challenges — CTF Writeups" active="challenges"
+  description="Searchable index of every tracked CTF challenge across CryptoHack and picoGym — filter by platform, category, status, and sort by date or points.">
+
+  <div class="wrap">
+    <header class="page-head">
+      <h1>All challenges</h1>
+      <p class="sub">Every tracked challenge from CryptoHack and picoGym in one filterable list.</p>
+    </header>
+
+    <div class="toolbar" id="toolbar">
+      <input type="search" id="q" placeholder="Search name or description…" autocomplete="off" aria-label="Search challenges" />
+      <select id="f-site" aria-label="Filter by platform">
+        <option value="">All platforms</option>
+        {sites.map(([value, label]) => <option value={value}>{label}</option>)}
+      </select>
+      <select id="f-cat" aria-label="Filter by category">
+        <option value="">All categories</option>
+      </select>
+      <select id="f-status" aria-label="Filter by status">
+        <option value="">All statuses</option>
+        <option value="solved">Solved</option>
+        <option value="unsolved">Unsolved</option>
+      </select>
+      <select id="sort" aria-label="Sort order">
+        <option value="newest">Newest solved first</option>
+        <option value="oldest">Oldest solved first</option>
+        <option value="points-high">Points (high → low)</option>
+        <option value="points-low">Points (low → high)</option>
+        <option value="name">Name (A → Z)</option>
+        <option value="name-rev">Name (Z → A)</option>
+      </select>
+      <div class="result-meta"><span id="count">…</span> · <span id="solved-count">…</span></div>
+    </div>
+
+    <ul class="grid" id="list" role="list" style="list-style:none;margin:0;padding:0"></ul>
+    <div class="empty" id="empty" hidden>No challenges match those filters.</div>
+  </div>
+
+  <script type="application/json" id="challenge-data" set:html={JSON_DATA} />
+
+  <script is:inline>
+    const DATA = JSON.parse(document.getElementById('challenge-data').textContent)
+    const CATS = [...new Set(DATA.map(d => d.category))].sort()
+    const qEl = document.getElementById('q')
+    const siteEl = document.getElementById('f-site')
+    const catEl = document.getElementById('f-cat')
+    const statEl = document.getElementById('f-status')
+    const sortEl = document.getElementById('sort')
+    const listEl = document.getElementById('list')
+    const emptyEl = document.getElementById('empty')
+    const countEl = document.getElementById('count')
+    const solvedEl = document.getElementById('solved-count')
+
+    catEl.innerHTML = '<option value="">All categories</option>' +
+      CATS.map(c => `<option value="${c}">${c}</option>`).join('')
+
+    const esc = s => String(s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+
+    function matches(d) {
+      const q = qEl.value.trim().toLowerCase()
+      if (q && ![d.name, d.category, d.siteLabel].filter(Boolean).some(f => f.toLowerCase().includes(q))) return false
+      if (siteEl.value && d.site !== siteEl.value) return false
+      if (catEl.value && d.category !== catEl.value) return false
+      if (statEl.value && d.status !== statEl.value) return false
+      return true
+    }
+
+    function sortOrder(list) {
+      const key = sortEl.value
+      const byDate = (a, b) => (a.solvedDate || '').localeCompare(b.solvedDate || '')
+      const byName = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      const byPts = (a, b) => b.points - a.points
+      let sorted = [...list]
+      switch (key) {
+        case 'newest': sorted.sort((a, b) => {
+            if (a.status !== b.status) return a.status === 'solved' ? -1 : 1
+            return (a.status === 'solved') ? (byDate(b, a) || byName(a, b)) : (byPts(a, b) || byName(a, b))
+          }); break
+        case 'oldest': sorted.sort((a, b) => {
+            if (a.status !== b.status) return a.status === 'solved' ? -1 : 1
+            return a.status === 'solved' ? (byDate(a, b) || byName(a, b)) : byPts(a, b)
+          }); break
+        case 'points-high': sorted.sort(byPts); break
+        case 'points-low': sorted.sort((a, b) => a.points - b.points); break
+        case 'name': sorted.sort(byName); break
+        case 'name-rev': sorted.sort((a, b) => byName(b, a)); break
+      }
+      return sorted
+    }
+
+    function render() {
+      const filtered = sortOrder(DATA.filter(matches))
+      listEl.innerHTML = filtered.map(d => `
+        <li role="listitem">
+          <a class="card" href="${esc(d.writeup || d.url)}" ${d.writeup ? '' : 'target="_blank" rel="noopener"'}>
+            <div class="card-top">
+              <span class="name">${esc(d.name)}</span>
+              ${d.points ? `<span class="pts">${d.points} pts</span>` : ''}
+            </div>
+            <div class="tags">
+              <span class="pill site-${esc(d.site)}">${esc(d.siteLabel)}</span>
+              <span class="pill">${esc(d.category)}</span>
+              ${d.status === 'solved'
+                ? '<span class="pill status-solved">Solved</span>' + (d.solvedDate ? `<span class="pill">${esc(d.solvedDate)}</span>` : '')
+                : '<span class="pill status-unsolved">Unsolved</span>'}
+            </div>
+          </a>
+        </li>
+      `).join('')
+      emptyEl.hidden = filtered.length !== 0
+      const nSolved = filtered.filter(d => d.status === 'solved').length
+      countEl.textContent = `${filtered.length} challenges`
+      solvedEl.textContent = `${nSolved} solved`
+    }
+
+    ;[qEl, siteEl, catEl, statEl, sortEl].forEach(el => el.addEventListener('input', render))
+    render()
+  </script>
+</Base>

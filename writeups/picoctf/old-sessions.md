@@ -1,12 +1,11 @@
----
-title: Old Sessions
-platform: picoGym
-category: Web Exploitation
-difficulty: Easy
-date: 2026-08-03
-tools: DevTools, document.cookie
-url: https://learn.cylabacademy.org/library/739
----
+# Old Sessions
+
+- **Category:** web exploitation
+- **Points:** 0
+- **Link:** https://learn.cylabacademy.org/library/739
+- **Platform:** Cylab Academy
+- **Status:** solved
+- **Solved date:** 2026-08-03
 
 ## The challenge
 
@@ -60,7 +59,7 @@ attack surface, not the login form.
 
 `picoCTF{REDACTED}` — withheld, challenge is still live.
 
-## What I learned
+## Key takeaway
 
 A "never log out" cookie is a session that never expires, so anyone who can read
 or replace it can impersonate the user — here an exposed `/sessions` endpoint

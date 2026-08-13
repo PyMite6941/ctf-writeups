@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro'
+import { getCollection } from 'astro:content'
+
+/* Pagefind only indexes elements marked data-pagefind-body, which lives on the
+   writeup pages. With no solved challenges there is nothing to search, and
+   Pagefind falls back to indexing the whole site — so show the tracker instead. */
+const writeups = await getCollection('writeups')
+const hasIndex = writeups.length > 0
+---
+
+<Base title="Search — CTF Writeups" active="search"
+  description="Full-text search across every CTF writeup: solutions, categories, descriptions, and code.">
+
+  <div class="wrap">
+    <header class="page-head">
+      <h1>Search</h1>
+      <p class="sub">Full-text search across all writeups — solutions, challenge descriptions, categories, and code.</p>
+    </header>
+
+    {hasIndex ? (
+      <div class="search-wrap">
+        <div id="search"></div>
+      </div>
+    ) : (
+      <div class="card" style="cursor:default">
+        <p style="margin:0 0 8px"><strong>Nothing to search yet.</strong></p>
+        <p class="muted" style="margin:0">
+          Search covers published writeups, and none are published yet. To browse the challenges
+          being worked through, use the <a href={`${import.meta.env.BASE_URL}challenges/`}>challenge
+          tracker</a>, which has its own filters and text search.
+        </p>
+      </div>
+    )}
+  </div>
+
+  {hasIndex && (
+    <Fragment>
+      <link rel="stylesheet" href={`${import.meta.env.BASE_URL}pagefind/pagefind-ui.css`} />
+      <script src={`${import.meta.env.BASE_URL}pagefind/pagefind-ui.js`} is:inline></script>
+      <script is:inline>
+        window.addEventListener('DOMContentLoaded', () => {
+          new PagefindUI({ element: '#search', showSubResults: true, showImages: false, pageSize: 10 })
+        })
+      </script>
+    </Fragment>
+  )}
+</Base>

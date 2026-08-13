@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Pagefind's internal search index is not content worth crawling.
+# Paths are absolute from the domain root because this is a project Pages site
+# served under /ctf-writeups/.
+Disallow: /ctf-writeups/pagefind/
+
+Sitemap: https://pymite6941.github.io/ctf-writeups/sitemap-index.xml

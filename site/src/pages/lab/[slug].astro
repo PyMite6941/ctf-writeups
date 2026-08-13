@@ -1,0 +1,112 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getCollection, render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const labs = await getCollection('labs')
+  return labs.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+const { title, category, difficulty, points, published, files, flagHash } = entry.data
+const fmtDate = published
+  ? new Date(published).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  : ''
+---
+
+<Base title={`${title} — Challenge Lab`} active="lab"
+  description={`${title} — a ${difficulty} ${category} CTF challenge to solve in your browser.`}>
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href={`${import.meta.env.BASE_URL}`}>Home</a> /
+      <a href={`${import.meta.env.BASE_URL}lab/`}>Challenge Lab</a> / {title}
+    </div>
+
+    <header class="post-head">
+      <h1>{title}</h1>
+      <div class="post-meta mono" style="font-size:13px">
+        <span class="pill">{category}</span>
+        <span class={`pill diff-${difficulty}`}>{difficulty}</span>
+        {points > 0 && <span class="pill">{points} pts</span>}
+        {fmtDate && <span class="pill">{fmtDate}</span>}
+      </div>
+    </header>
+
+    <article class="prose">
+      <Content />
+    </article>
+
+    {files.length > 0 && (
+      <section class="section">
+        <h2>Files</h2>
+        <ul class="file-list">
+          {files.map((f) => (
+            <li>
+              <a class="mono" href={`${import.meta.env.BASE_URL}challenge-files/${f}`} download>{f}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {flagHash && (
+      <section class="section">
+        <h2>Submit the flag</h2>
+        <p class="muted" style="margin-top:-6px">
+          Checked in your browser against a hash of the answer — nothing is sent anywhere,
+          and no account is needed.
+        </p>
+        <form class="flag-form" id="flag-form" data-hash={flagHash} autocomplete="off">
+          <input type="text" id="flag-input" class="mono" placeholder="flag{...}"
+            aria-label="Your flag" spellcheck="false" />
+          <button type="submit" class="btn btn-primary">Check</button>
+        </form>
+        <p id="flag-result" class="flag-result" role="status" aria-live="polite"></p>
+      </section>
+    )}
+
+    <nav style="margin-top:40px;display:flex;gap:14px;font-size:14px">
+      <a href={`${import.meta.env.BASE_URL}lab/`}>&larr; All challenges</a>
+    </nav>
+  </div>
+
+  <script is:inline>
+    (function () {
+      var form = document.getElementById('flag-form')
+      if (!form) return
+      var input = document.getElementById('flag-input')
+      var result = document.getElementById('flag-result')
+      var expected = form.dataset.hash
+
+      function show(state, message) {
+        result.textContent = message
+        result.className = 'flag-result ' + state
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault()
+        var value = input.value.trim()
+        if (!value) return show('', '')
+
+        // crypto.subtle needs a secure context; GitHub Pages and localhost both are.
+        if (!window.crypto || !window.crypto.subtle) {
+          return show('error', 'Your browser cannot check the flag here (needs HTTPS).')
+        }
+
+        window.crypto.subtle
+          .digest('SHA-256', new TextEncoder().encode(value))
+          .then(function (buf) {
+            var hex = Array.prototype.map
+              .call(new Uint8Array(buf), function (b) { return b.toString(16).padStart(2, '0') })
+              .join('')
+            if (hex === expected) show('ok', 'Correct — nice work.')
+            else show('bad', 'Not it. Check your formatting, then try again.')
+          })
+          .catch(function () { show('error', 'Something went wrong checking that.') })
+      })
+
+      input.addEventListener('input', function () { show('', '') })
+    })()
+  </script>
+</Base>

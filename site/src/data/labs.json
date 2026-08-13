@@ -1,0 +1,15 @@
+[
+  {
+    "title": "Repeating Offender",
+    "slug": "repeating-offender",
+    "category": "Cryptography",
+    "difficulty": "easy",
+    "points": 50,
+    "published": "2026-08-12",
+    "files": [
+      "repeating-offender.txt"
+    ],
+    "flagHash": "2eb2d887a757d98bb830b6f09ad0d86dd2cebe3296049cfe49a4b4cedf06329b",
+    "url": "/ctf-writeups/lab/repeating-offender/"
+  }
+]

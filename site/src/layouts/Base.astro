@@ -1,0 +1,80 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description?: string
+  image?: string
+  active?: string
+}
+
+const { title, description = 'CTF writeups and solutions — approach, dead ends, and the reasoning in between.', image, active = '' } = Astro.props
+
+/* Astro.site stringifies with a trailing slash and Astro.base starts with one,
+   so concatenating them yields a double slash. Build the URL properly instead.
+   Keep this frontmatter ASCII-only: the Astro compiler slices it by byte
+   offset, and multibyte characters here corrupt the emitted module. */
+const ogImage = image || new URL(`${import.meta.env.BASE_URL}assets/og.png`, Astro.site).href
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CTF Writeups" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>document.documentElement.style.colorScheme = 'dark';</script>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Main navigation">
+      <div class="wrap nav-inner">
+        <a class="brand" href={`${import.meta.env.BASE_URL}`}><em>&gt;</em> ctf-writeups</a>
+        <div class="nav-links">
+          <a href={`${import.meta.env.BASE_URL}`} class:list={{ active: active === 'home' }}>Home</a>
+          <a href={`${import.meta.env.BASE_URL}challenges/`} class:list={{ active: active === 'challenges' }}>Practice</a>
+          <a href={`${import.meta.env.BASE_URL}lab/`} class:list={{ active: active === 'lab' }}>Challenge Lab</a>
+          <a href={`${import.meta.env.BASE_URL}search/`} class:list={{ active: active === 'search' }}>Search</a>
+          <a class="nav-cta" href="https://pymite6941.is-a.dev" target="_blank" rel="noopener">
+            Portfolio <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <p>
+          Learning CTFs in the open — practice writeups and challenges of my own, across crypto,
+          web, forensics, reverse engineering and general skills. Flags for still-live challenges
+          are withheld, and no real systems are targeted.
+        </p>
+        <p>
+          <a href={`${import.meta.env.BASE_URL}`}>Home</a> ·
+          <a href={`${import.meta.env.BASE_URL}challenges/`}>Practice</a> ·
+          <a href={`${import.meta.env.BASE_URL}lab/`}>Challenge Lab</a> ·
+          <a href={`${import.meta.env.BASE_URL}search/`}>Search</a> ·
+          <a href="https://pymite6941.is-a.dev" target="_blank" rel="noopener">Portfolio</a>
+        </p>
+        <p class="muted">Built with Astro, Shiki, and Pagefind. Writeups live in one Markdown source of truth.</p>
+      </div>
+    </footer>
+  </body>
+</html>

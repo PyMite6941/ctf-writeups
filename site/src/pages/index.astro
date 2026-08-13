@@ -1,0 +1,125 @@
+---
+import Base from '../layouts/Base.astro'
+import { getCollection } from 'astro:content'
+import challenges from '../data/challenges.json'
+
+/* The writeups collection only holds published pages (see scripts/sync.mjs),
+   so the headline stats come from the tracker index, which spans everything. */
+const writeups = await getCollection('writeups')
+const labs = await getCollection('labs')
+const solved = challenges.filter((c) => c.status === 'solved')
+const catCount = new Set([
+  ...challenges.map((c) => c.category),
+  ...labs.map((l) => l.data.category),
+]).size
+
+const featured = [...writeups]
+  .sort((a, b) => (b.data.solvedDate || '').localeCompare(a.data.solvedDate || ''))
+  .slice(0, 6)
+---
+
+<Base title="CTF Lab & Writeups — Matt Gresham" active="home"
+  description="Learning capture-the-flag in the open: practice writeups across picoGym and friends, plus original challenges you can solve in the browser.">
+
+  <div class="wrap">
+    <section class="hero">
+      <h1>Learning to break things, <span>then building things to break</span>.</h1>
+      <p>
+        This is my CTF workbench. One half is practice — challenges I'm working through, written
+        up with the dead ends left in. The other half is the Challenge Lab: puzzles I built
+        myself, which is the fastest way I've found to prove I actually understood the attack.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href={`${import.meta.env.BASE_URL}lab/`}>Try my challenges →</a>
+        <a class="btn" href={`${import.meta.env.BASE_URL}challenges/`}>See what I'm practising</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="num">{labs.length}</div><div class="lbl">Built by me</div></div>
+        <div class="stat"><div class="num">{solved.length}</div><div class="lbl">Solved</div></div>
+        <div class="stat"><div class="num">{challenges.length}</div><div class="lbl">In progress</div></div>
+        <div class="stat"><div class="num">{catCount}</div><div class="lbl">Categories</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>From the Challenge Lab</h2>
+      {labs.length === 0 ? (
+        <div class="card" style="cursor:default">
+          <p class="muted" style="margin:0">The first challenge is being built.</p>
+        </div>
+      ) : (
+        <div class="grid">
+          {labs.slice(0, 3).map((lab) => (
+            <a class="card" href={`${import.meta.env.BASE_URL}lab/${lab.id}/`}>
+              <div class="card-top">
+                <span class="name">{lab.data.title}</span>
+                {lab.data.points > 0 && <span class="pts">{lab.data.points} pts</span>}
+              </div>
+              <div class="tags">
+                <span class="pill">{lab.data.category}</span>
+                <span class={`pill diff-${lab.data.difficulty}`}>{lab.data.difficulty}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+
+    <section class="section">
+      <h2>Practice writeups</h2>
+      {featured.length === 0 && (
+        <div class="card" style="cursor:default">
+          <p style="margin:0 0 8px"><strong>No writeups published yet.</strong></p>
+          <p class="muted" style="margin:0">
+            The <a href={`${import.meta.env.BASE_URL}challenges/`}>practice tracker</a> lists what I'm
+            working through. A writeup lands here the moment one is solved — approach, dead ends,
+            and the solve script.
+          </p>
+        </div>
+      )}
+      <div class="grid">
+        {
+          featured.map((w) => (
+            <a class="card" href={`${import.meta.env.BASE_URL}writeup/${w.id}/`}>
+              <div class="card-top">
+                <span class="name">{w.data.title}</span>
+                {w.data.points > 0 && <span class="pts">{w.data.points} pts</span>}
+              </div>
+              <div class="tags">
+                <span class={`pill site-${w.data.site}`}>{w.data.siteLabel}</span>
+                <span class="pill">{w.data.category}</span>
+                {w.data.status === 'solved'
+                  ? <span class="pill status-solved">Solved</span>
+                  : <span class="pill status-unsolved">Unsolved</span>}
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="grid" style="grid-template-columns:repeat(2, 1fr)">
+        <div class="card" style="cursor:default">
+          <p style="margin:0 0 8px"><strong>Method, not just answers.</strong></p>
+          <p class="muted" style="margin:0">Every solve records the failed attempts. Dead ends are
+          part of the writeup, because the pattern-recognition they build is what transfers
+          between challenges.</p>
+        </div>
+        <div class="card" style="cursor:default">
+          <p style="margin:0 0 8px"><strong>Solutions stay where they belong.</strong></p>
+          <p class="muted" style="margin:0">Some platforms ask that their challenges not be written
+          up publicly, and that's respected here — those stay in a private notebook. What's
+          published is either mine to publish or mine to begin with.</p>
+        </div>
+        <div class="card" style="cursor:default">
+          <p style="margin:0 0 8px"><strong>One source of truth.</strong></p>
+          <p class="muted" style="margin:0">All writeups flow from a single Markdown source. The site
+          is a static build with full-text search — every challenge page is indexable, and the raw
+          Markdown never ships to the browser.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
