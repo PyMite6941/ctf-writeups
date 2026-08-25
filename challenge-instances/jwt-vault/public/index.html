@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vault — document store</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+         background: #0d1117; color: #c9d1d9; display: grid; place-items: center;
+         min-height: 100vh; }
+  main { width: min(600px, 92vw); padding: 24px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #8b949e; margin: 0 0 20px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+          padding: 16px; margin: 12px 0; }
+  label { display: block; color: #8b949e; margin: 8px 0 2px; }
+  input { width: 100%; box-sizing: border-box; background: #0d1117; color: #c9d1d9;
+          border: 1px solid #30363d; border-radius: 6px; padding: 8px; font: inherit; }
+  button { margin-top: 12px; background: #238636; color: #fff; border: 0;
+           border-radius: 6px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  button.ghost { background: #21262d; border: 1px solid #30363d; }
+  .doc { border-left: 3px solid #388bfd; padding-left: 10px; margin: 10px 0; }
+  .doc h3 { margin: 0; font-size: 14px; }
+  .doc p { margin: 2px 0 0; color: #adbac7; white-space: pre-wrap; }
+  .adminpill { color: #f0883e; font-size: 12px; }
+  .err { color: #f85149; }
+  .hint { color: #6e7681; font-size: 13px; }
+  .token { word-break: break-all; color: #d2a8ff; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🗄️ Vault</h1>
+  <p class="sub">Your documents, protected by a signed session token.</p>
+
+  <section id="loginCard" class="card">
+    <strong>Sign in</strong>
+    <label>username</label>
+    <input id="user" value="alice" autocomplete="off" />
+    <label>password</label>
+    <input id="pass" type="password" value="password123" />
+    <button id="loginBtn">Sign in</button>
+    <p class="hint">Test account is pre-filled. (alice / password123)</p>
+    <p id="loginErr" class="err"></p>
+  </section>
+
+  <section id="appCard" class="card" hidden>
+    <strong>Signed in — role: <span id="role"></span></strong>
+    <p class="hint">Your session token (a JWT — three base64url parts). Decode it.</p>
+    <p class="token" id="tokenView"></p>
+    <div id="docList"></div>
+    <hr style="border-color:#30363d" />
+    <label>Open document by id</label>
+    <input id="docId" value="1" inputmode="numeric" />
+    <button id="viewBtn" class="ghost">Open</button>
+    <div id="viewer"></div>
+  </section>
+</main>
+
+<script>
+let token = null;
+
+async function api(path, opts = {}) {
+  const headers = Object.assign({ 'content-type': 'application/json' }, opts.headers || {});
+  if (token) headers['authorization'] = 'Bearer ' + token;
+  const res = await fetch(path, Object.assign({}, opts, { headers }));
+  return { ok: res.ok, status: res.status, data: await res.json().catch(() => ({})) };
+}
+
+document.getElementById('loginBtn').onclick = async () => {
+  const err = document.getElementById('loginErr');
+  err.textContent = '';
+  const r = await api('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      user: document.getElementById('user').value,
+      password: document.getElementById('pass').value,
+    }),
+  });
+  if (!r.ok) { err.textContent = r.data.error || 'login failed'; return; }
+  token = r.data.token;
+  document.getElementById('loginCard').hidden = true;
+  document.getElementById('appCard').hidden = false;
+  document.getElementById('tokenView').textContent = token;
+  loadDocs();
+};
+
+async function loadDocs() {
+  const r = await api('/api/docs');
+  document.getElementById('role').textContent = r.data.role || '?';
+  const box = document.getElementById('docList');
+  box.innerHTML = '<p class="hint">Documents you can see:</p>' + (r.data.docs || [])
+    .map((d) => `<div class="doc"><h3>#${d.id} — ${d.title}
+      ${d.role === 'admin' ? '<span class="adminpill">admin</span>' : ''}</h3></div>`).join('');
+}
+
+document.getElementById('viewBtn').onclick = async () => {
+  const id = document.getElementById('docId').value;
+  const r = await api('/api/doc?id=' + encodeURIComponent(id));
+  const v = document.getElementById('viewer');
+  if (!r.ok) { v.innerHTML = `<p class="err">${r.data.error || 'error'}</p>`; return; }
+  v.innerHTML = `<div class="doc"><h3>${r.data.title}</h3><p>${r.data.body}</p></div>`;
+};
+</script>
+</body>
+</html>
