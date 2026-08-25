@@ -44,12 +44,23 @@ vercel env add LOCKBOX_FLAG production
 vercel --prod
 ```
 
-## Run it locally
+## Download and run it locally
+
+The whole point of shipping the files: download this folder and run it, no
+account and no Vercel CLI. `serve.js` reuses the exact same `api/*.js` handlers
+production runs, so what you experiment on locally is what's deployed.
 
 ```bash
-cd challenge-instances/idor-lockbox
-LOCKBOX_FLAG='flag{test}' vercel dev      # needs the Vercel CLI
+# just Node -- zero dependencies
+LOCKBOX_FLAG='flag{test}' node serve.js     # -> http://localhost:3000
+
+# or with the Vercel CLI, if you want the real dev environment
+LOCKBOX_FLAG='flag{test}' vercel dev
 ```
+
+`serve.js` re-requires the handlers on every request, so you can edit
+`api/note.js` (e.g. uncomment the ownership check) and watch the attack stop
+working without restarting the server. That edit-and-observe loop is the point.
 
 ## Note: this repo is public
 
