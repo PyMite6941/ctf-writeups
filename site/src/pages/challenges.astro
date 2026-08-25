@@ -7,7 +7,10 @@ const categories = [...new Set(challenges.map((c) => c.category))].sort()
    up in the filter without editing this page. */
 const sites = [...new Map(challenges.map((c) => [c.site, c.siteLabel])).entries()]
   .sort((a, b) => a[1].localeCompare(b[1]))
-const JSON_DATA = JSON.stringify(challenges)
+/* Escape "<" so a value containing "</script>" can't break out of the
+   <script type="application/json"> tag below (script-context breakout XSS).
+   "<" is valid JSON and parses back to "<", so the data is unchanged. */
+const JSON_DATA = JSON.stringify(challenges).replace(/</g, '\\u003c')
 ---
 
 <Base title="All Challenges — CTF Writeups" active="challenges"
@@ -63,11 +66,11 @@ const JSON_DATA = JSON.stringify(challenges)
     const countEl = document.getElementById('count')
     const solvedEl = document.getElementById('solved-count')
 
-    catEl.innerHTML = '<option value="">All categories</option>' +
-      CATS.map(c => `<option value="${c}">${c}</option>`).join('')
-
     const esc = s => String(s).replace(/[&<>"']/g, c =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+
+    catEl.innerHTML = '<option value="">All categories</option>' +
+      CATS.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')
 
     function matches(d) {
       const q = qEl.value.trim().toLowerCase()
