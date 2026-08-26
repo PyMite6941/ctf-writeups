@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getCollection, render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('lessons')
+  const ordered = [...lessons].sort((a, b) => a.data.order - b.data.order)
+  return ordered.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      prev: ordered[i - 1] || null,
+      next: ordered[i + 1] || null,
+    },
+  }))
+}
+
+const { entry, prev, next } = Astro.props
+const { Content } = await render(entry)
+const { title, summary, difficulty, concept, lab, labUrl } = entry.data
+const base = import.meta.env.BASE_URL
+---
+
+<Base title={`${title} — Learn CTF`} description={summary} active="learn">
+  <div class="wrap">
+    <div class="breadcrumb">
+      <a href={base}>Home</a> / <a href={`${base}learn/`}>Learn</a> / {title}
+    </div>
+
+    <header class="post-head" data-pagefind-body data-pagefind-meta={`title: ${title}`}>
+      <h1>{title}</h1>
+      <div class="post-meta mono" style="font-size:13px">
+        <span class={`pill diff-${difficulty}`} data-pagefind-filter={`difficulty: ${difficulty}`}>{difficulty}</span>
+        {concept && <span class="pill">{concept}</span>}
+        {lab && labUrl && (
+          <a class="nav-cta" href={labUrl} target="_blank" rel="noopener">
+            Practice on {lab} <span aria-hidden="true">↗</span>
+          </a>
+        )}
+      </div>
+      <p class="muted" style="font-size:14px">{summary}</p>
+    </header>
+
+    <article class="prose" data-pagefind-body>
+      <Content />
+    </article>
+
+    <nav style="margin-top:44px;display:flex;justify-content:space-between;gap:14px;font-size:14px">
+      {prev
+        ? <a href={`${base}learn/${prev.id}/`}>← {prev.data.title}</a>
+        : <a href={`${base}learn/`}>← All lessons</a>}
+      {next && <a href={`${base}learn/${next.id}/`}>{next.data.title} →</a>}
+    </nav>
+  </div>
+</Base>

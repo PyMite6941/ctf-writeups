@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro'
+import { getCollection } from 'astro:content'
+
+const lessons = (await getCollection('lessons')).sort((a, b) => a.data.order - b.data.order)
+const base = import.meta.env.BASE_URL
+---
+
+<Base title="Learn CTF — from zero to your first flag" active="learn"
+  description="A hands-on track that teaches how to approach capture-the-flag challenges, using my own live web targets as the practice grounds. Methodology and guided hints — you get the last push.">
+  <div class="wrap">
+    <header class="page-head">
+      <h1>Learn CTF</h1>
+      <p class="sub">
+        How to actually solve capture-the-flag challenges — the mindset, the loop, and the tools —
+        taught against live targets I built for the purpose. Each lesson walks you up to a real flaw
+        and stops just before the answer. The last push is yours.
+      </p>
+    </header>
+
+    <div class="grid">
+      {lessons.map((l) => (
+        <a class="card" href={`${base}learn/${l.id}/`}>
+          <div class="card-top">
+            <span class="name">{l.data.title}</span>
+            <span class={`pill diff-${l.data.difficulty}`}>{l.data.difficulty}</span>
+          </div>
+          <p class="muted" style="margin:8px 0 0">{l.data.summary}</p>
+          {l.data.lab && (
+            <div class="tags" style="margin-top:10px">
+              <span class="pill">practice: {l.data.lab}</span>
+              {l.data.concept && <span class="pill">{l.data.concept}</span>}
+            </div>
+          )}
+        </a>
+      ))}
+    </div>
+
+    {lessons.length === 0 && (
+      <div class="card" style="cursor:default">
+        <p class="muted" style="margin:0">Lessons are being written.</p>
+      </div>
+    )}
+
+    <section class="section">
+      <div class="card" style="cursor:default">
+        <p style="margin:0 0 8px"><strong>These are safe, legal targets.</strong></p>
+        <p class="muted" style="margin:0">
+          The live challenges here exist to be attacked — that's their whole purpose. Everything you
+          learn is aimed at understanding and defending real systems. Practice only on targets you own
+          or are explicitly permitted to test; finding a flaw somewhere is never permission to exploit it.
+        </p>
+      </div>
+    </section>
+  </div>
+</Base>

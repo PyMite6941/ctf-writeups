@@ -33,4 +33,21 @@ const labs = defineCollection({
   }),
 })
 
-export const collections = { writeups, labs }
+/* "Learn CTF" teaching track. Methodology + guided lessons that use my own
+   live challenges (Lockbox, Vault) as the practice grounds. Lessons are hand-
+   authored markdown (not generated, no secrets) and never contain a flag or a
+   full solution -- they teach how to approach a challenge and hint toward it. */
+const lessons = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/lessons' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    order: z.number().default(0),
+    difficulty: z.enum(['intro', 'easy', 'medium', 'hard']).default('easy'),
+    concept: z.string().optional(),
+    lab: z.string().optional(),      // name of the live challenge it uses
+    labUrl: z.string().optional(),   // where to go practice
+  }),
+})
+
+export const collections = { writeups, labs, lessons }

@@ -45,6 +45,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href
         <a class="brand" href={`${import.meta.env.BASE_URL}`}><em>&gt;</em> ctf-writeups</a>
         <div class="nav-links">
           <a href={`${import.meta.env.BASE_URL}`} class:list={{ active: active === 'home' }}>Home</a>
+          <a href={`${import.meta.env.BASE_URL}learn/`} class:list={{ active: active === 'learn' }}>Learn</a>
           <a href={`${import.meta.env.BASE_URL}challenges/`} class:list={{ active: active === 'challenges' }}>Practice</a>
           <a href={`${import.meta.env.BASE_URL}lab/`} class:list={{ active: active === 'lab' }}>Challenge Lab</a>
           <a href={`${import.meta.env.BASE_URL}tools/`} class:list={{ active: active === 'tools' }}>Tools</a>
@@ -69,6 +70,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href
         </p>
         <p>
           <a href={`${import.meta.env.BASE_URL}`}>Home</a> ·
+          <a href={`${import.meta.env.BASE_URL}learn/`}>Learn</a> ·
           <a href={`${import.meta.env.BASE_URL}challenges/`}>Practice</a> ·
           <a href={`${import.meta.env.BASE_URL}lab/`}>Challenge Lab</a> ·
           <a href={`${import.meta.env.BASE_URL}tools/`}>Tools</a> ·
