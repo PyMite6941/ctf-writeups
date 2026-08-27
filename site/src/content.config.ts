@@ -47,6 +47,9 @@ const lessons = defineCollection({
     concept: z.string().optional(),
     lab: z.string().optional(),      // name of the live challenge it uses
     labUrl: z.string().optional(),   // where to go practice
+    // Discovery controls for training pages:
+    noindex: z.boolean().default(false),   // keep out of search engines + site search
+    unlisted: z.boolean().default(false),  // also hide from the /learn index (direct-link only)
   }),
 })
 

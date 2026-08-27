@@ -2,7 +2,9 @@
 import Base from '../../layouts/Base.astro'
 import { getCollection } from 'astro:content'
 
-const lessons = (await getCollection('lessons')).sort((a, b) => a.data.order - b.data.order)
+const lessons = (await getCollection('lessons'))
+  .filter((l) => !l.data.unlisted)   // unlisted = direct-link-only, kept off the index
+  .sort((a, b) => a.data.order - b.data.order)
 const base = import.meta.env.BASE_URL
 ---
 

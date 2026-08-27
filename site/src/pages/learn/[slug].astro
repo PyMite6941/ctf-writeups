@@ -5,23 +5,30 @@ import { getCollection, render } from 'astro:content'
 export async function getStaticPaths() {
   const lessons = await getCollection('lessons')
   const ordered = [...lessons].sort((a, b) => a.data.order - b.data.order)
-  return ordered.map((entry, i) => ({
-    params: { slug: entry.id },
-    props: {
-      entry,
-      prev: ordered[i - 1] || null,
-      next: ordered[i + 1] || null,
-    },
-  }))
+  // prev/next thread only through the listed lessons, so an unlisted (direct-
+  // link-only) page is never surfaced by navigating the visible sequence. Every
+  // lesson still gets a page generated, so its direct link works.
+  const listed = ordered.filter((l) => !l.data.unlisted)
+  return ordered.map((entry) => {
+    const li = listed.findIndex((l) => l.id === entry.id)
+    return {
+      params: { slug: entry.id },
+      props: {
+        entry,
+        prev: li > 0 ? listed[li - 1] : null,
+        next: li >= 0 && li < listed.length - 1 ? listed[li + 1] : null,
+      },
+    }
+  })
 }
 
 const { entry, prev, next } = Astro.props
 const { Content } = await render(entry)
-const { title, summary, difficulty, concept, lab, labUrl } = entry.data
+const { title, summary, difficulty, concept, lab, labUrl, noindex } = entry.data
 const base = import.meta.env.BASE_URL
 ---
 
-<Base title={`${title} — Learn CTF`} description={summary} active="learn">
+<Base title={`${title} — Learn CTF`} description={summary} active="learn" noindex={noindex}>
   <div class="wrap">
     <div class="breadcrumb">
       <a href={base}>Home</a> / <a href={`${base}learn/`}>Learn</a> / {title}
