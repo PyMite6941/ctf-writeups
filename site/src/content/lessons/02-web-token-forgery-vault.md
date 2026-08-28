@@ -6,6 +6,7 @@ difficulty: medium
 concept: JWT alg:none / algorithm confusion
 lab: Vault
 labUrl: https://jwt-vault.vercel.app
+noindex: true
 ---
 
 In the last lesson the server forgot to check permissions. This time it checks

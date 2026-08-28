@@ -4,6 +4,7 @@ summary: What a capture-the-flag challenge is, the mindset that solves them, and
 order: 0
 difficulty: intro
 concept: methodology
+noindex: true
 ---
 
 A **CTF** (capture the flag) is a security puzzle. Somewhere in a system there's

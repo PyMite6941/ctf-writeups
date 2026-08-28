@@ -6,6 +6,7 @@ difficulty: easy
 concept: IDOR / broken object-level authorization
 lab: Lockbox
 labUrl: https://idor-lockbox.vercel.app
+noindex: true
 ---
 
 Two words that unlock most web challenges: **authentication** vs
