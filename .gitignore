@@ -13,6 +13,9 @@ cryptohack_catalog.json
 challenges/flags.json
 challenges/notes/
 
+# --- Node deps anywhere (challenge instances install their own) ---
+node_modules/
+
 # --- Astro site ---
 site/node_modules/
 site/dist/
@@ -20,6 +23,13 @@ site/.astro/
 
 # Local-only scaffolding — kept on disk, never published
 TEMPLATE.md
+
+# --- Gated training content ---
+# Lesson PLAINTEXT and the access code never go in the repo. Only the encrypted
+# output (site/src/data/lessons.json) is committed, so the repo leaks no Q&A.
+# training/encrypt.mjs runs locally, like sync.mjs.
+training/lessons/
+training/access-code.txt
 
 # Scratch space for solving, not part of the published site
 practice-files-for-ctfs/

@@ -33,24 +33,10 @@ const labs = defineCollection({
   }),
 })
 
-/* "Learn CTF" teaching track. Methodology + guided lessons that use my own
-   live challenges (Lockbox, Vault) as the practice grounds. Lessons are hand-
-   authored markdown (not generated, no secrets) and never contain a flag or a
-   full solution -- they teach how to approach a challenge and hint toward it. */
-const lessons = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/lessons' }),
-  schema: z.object({
-    title: z.string(),
-    summary: z.string(),
-    order: z.number().default(0),
-    difficulty: z.enum(['intro', 'easy', 'medium', 'hard']).default('easy'),
-    concept: z.string().optional(),
-    lab: z.string().optional(),      // name of the live challenge it uses
-    labUrl: z.string().optional(),   // where to go practice
-    // Discovery controls for training pages:
-    noindex: z.boolean().default(false),   // keep out of search engines + site search
-    unlisted: z.boolean().default(false),  // also hide from the /learn index (direct-link only)
-  }),
-})
+/* NOTE: the "Learn CTF" track is NOT an Astro content collection. Its lessons
+   are authored as gitignored plaintext in training/lessons/ and encrypted by
+   scripts/encrypt-lessons.mjs into src/data/lessons.json (committed, ciphertext
+   only). The /learn pages read that JSON and decrypt in the browser with an
+   access code, so the plaintext never enters the repo or the built HTML. */
 
-export const collections = { writeups, labs, lessons }
+export const collections = { writeups, labs }

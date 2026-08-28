@@ -1,39 +1,38 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { getCollection } from 'astro:content'
+import data from '../../data/lessons.json'
 
-const lessons = (await getCollection('lessons'))
-  .filter((l) => !l.data.unlisted)   // unlisted = direct-link-only, kept off the index
-  .sort((a, b) => a.data.order - b.data.order)
+const lessons = data.lessons
+  .filter((l) => !l.unlisted)          // unlisted = direct-link-only
+  .sort((a, b) => a.order - b.order)
 const base = import.meta.env.BASE_URL
 ---
 
-<Base title="Learn CTF — from zero to your first flag" active="learn"
-  description="A hands-on track that teaches how to approach capture-the-flag challenges, using my own live web targets as the practice grounds. Methodology and guided hints — you get the last push.">
+<Base title="Learn CTF — from zero to your first flag" active="learn" noindex={true}
+  description="A hands-on, access-gated track that teaches how to approach capture-the-flag challenges using live targets built for the purpose.">
   <div class="wrap">
     <header class="page-head">
       <h1>Learn CTF</h1>
       <p class="sub">
         How to actually solve capture-the-flag challenges — the mindset, the loop, and the tools —
-        taught against live targets I built for the purpose. Each lesson walks you up to a real flaw
-        and stops just before the answer. The last push is yours.
+        taught against live targets built for the purpose. Lessons are access-gated: enter the code
+        you were given to unlock them. Each walks you up to a real flaw and stops before the answer.
       </p>
     </header>
 
     <div class="grid">
       {lessons.map((l) => (
-        <a class="card" href={`${base}learn/${l.id}/`}>
+        <a class="card" href={`${base}learn/${l.slug}/`}>
           <div class="card-top">
-            <span class="name">{l.data.title}</span>
-            <span class={`pill diff-${l.data.difficulty}`}>{l.data.difficulty}</span>
+            <span class="name">{l.title}</span>
+            <span class={`pill diff-${l.difficulty}`}>{l.difficulty}</span>
           </div>
-          <p class="muted" style="margin:8px 0 0">{l.data.summary}</p>
-          {l.data.lab && (
-            <div class="tags" style="margin-top:10px">
-              <span class="pill">practice: {l.data.lab}</span>
-              {l.data.concept && <span class="pill">{l.data.concept}</span>}
-            </div>
-          )}
+          <p class="muted" style="margin:8px 0 0">{l.summary}</p>
+          <div class="tags" style="margin-top:10px">
+            <span class="pill">🔒 gated</span>
+            {l.lab && <span class="pill">practice: {l.lab}</span>}
+            {l.concept && <span class="pill">{l.concept}</span>}
+          </div>
         </a>
       ))}
     </div>
@@ -46,11 +45,11 @@ const base = import.meta.env.BASE_URL
 
     <section class="section">
       <div class="card" style="cursor:default">
-        <p style="margin:0 0 8px"><strong>These are safe, legal targets.</strong></p>
+        <p style="margin:0 0 8px"><strong>Why the lock?</strong></p>
         <p class="muted" style="margin:0">
-          The live challenges here exist to be attacked — that's their whole purpose. Everything you
-          learn is aimed at understanding and defending real systems. Practice only on targets you own
-          or are explicitly permitted to test; finding a flaw somewhere is never permission to exploit it.
+          Lesson content is encrypted so it can't be scraped by search engines or bots and pulled
+          into dumps or training sets. With the access code it decrypts in your browser. These are
+          safe, legal targets — practice only on systems you own or are permitted to test.
         </p>
       </div>
     </section>

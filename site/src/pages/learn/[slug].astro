@@ -1,62 +1,135 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { getCollection, render } from 'astro:content'
+import data from '../../data/lessons.json'
 
 export async function getStaticPaths() {
-  const lessons = await getCollection('lessons')
-  const ordered = [...lessons].sort((a, b) => a.data.order - b.data.order)
-  // prev/next thread only through the listed lessons, so an unlisted (direct-
-  // link-only) page is never surfaced by navigating the visible sequence. Every
-  // lesson still gets a page generated, so its direct link works.
-  const listed = ordered.filter((l) => !l.data.unlisted)
-  return ordered.map((entry) => {
-    const li = listed.findIndex((l) => l.id === entry.id)
+  const ordered = [...data.lessons].sort((a, b) => a.order - b.order)
+  // prev/next thread only through listed lessons; every lesson still gets a page
+  // (so an unlisted direct link works).
+  const listed = ordered.filter((l) => !l.unlisted)
+  return ordered.map((lesson) => {
+    const i = listed.findIndex((l) => l.slug === lesson.slug)
     return {
-      params: { slug: entry.id },
+      params: { slug: lesson.slug },
       props: {
-        entry,
-        prev: li > 0 ? listed[li - 1] : null,
-        next: li >= 0 && li < listed.length - 1 ? listed[li + 1] : null,
+        lesson,
+        prev: i > 0 ? listed[i - 1] : null,
+        next: i >= 0 && i < listed.length - 1 ? listed[i + 1] : null,
       },
     }
   })
 }
 
-const { entry, prev, next } = Astro.props
-const { Content } = await render(entry)
-const { title, summary, difficulty, concept, lab, labUrl, noindex } = entry.data
+const { lesson, prev, next } = Astro.props
 const base = import.meta.env.BASE_URL
+
+/* Everything embedded here is ciphertext + KDF params — safe to publish. The
+   plaintext body is never in this page. base64 has no "<", so no script-context
+   breakout risk, but we keep the collection's escaping habit anyway. */
+const encJson = JSON.stringify({
+  salt: data.kdf.salt,
+  iterations: data.kdf.iterations,
+  iv: lesson.iv,
+  ct: lesson.ct,
+}).replace(/</g, '\\u003c')
 ---
 
-<Base title={`${title} — Learn CTF`} description={summary} active="learn" noindex={noindex}>
+<Base title={`${lesson.title} — Learn CTF`} description={lesson.summary} active="learn" noindex={lesson.noindex}>
   <div class="wrap">
     <div class="breadcrumb">
-      <a href={base}>Home</a> / <a href={`${base}learn/`}>Learn</a> / {title}
+      <a href={base}>Home</a> / <a href={`${base}learn/`}>Learn</a> / {lesson.title}
     </div>
 
-    <header class="post-head" data-pagefind-body data-pagefind-meta={`title: ${title}`}>
-      <h1>{title}</h1>
+    <header class="post-head">
+      <h1>{lesson.title}</h1>
       <div class="post-meta mono" style="font-size:13px">
-        <span class={`pill diff-${difficulty}`} data-pagefind-filter={`difficulty: ${difficulty}`}>{difficulty}</span>
-        {concept && <span class="pill">{concept}</span>}
-        {lab && labUrl && (
-          <a class="nav-cta" href={labUrl} target="_blank" rel="noopener">
-            Practice on {lab} <span aria-hidden="true">↗</span>
+        <span class={`pill diff-${lesson.difficulty}`}>{lesson.difficulty}</span>
+        {lesson.concept && <span class="pill">{lesson.concept}</span>}
+        {lesson.lab && lesson.labUrl && (
+          <a class="nav-cta" href={lesson.labUrl} target="_blank" rel="noopener">
+            Practice on {lesson.lab} <span aria-hidden="true">↗</span>
           </a>
         )}
       </div>
-      <p class="muted" style="font-size:14px">{summary}</p>
+      <p class="muted" style="font-size:14px">{lesson.summary}</p>
     </header>
 
-    <article class="prose" data-pagefind-body>
-      <Content />
-    </article>
+    <section id="gate" class="card" style="cursor:default">
+      <p style="margin:0 0 8px"><strong>This lesson is access-gated.</strong></p>
+      <p class="muted" style="margin:0 0 12px">
+        The content is encrypted and unlocks in your browser with the access code.
+        Enter it once — it's remembered for this session.
+      </p>
+      <form id="gate-form" style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="gate-code" type="password" placeholder="access code" autocomplete="off"
+          style="flex:1;min-width:200px;background:#0d1117;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px" />
+        <button class="btn btn-primary" type="submit">Unlock</button>
+      </form>
+      <p id="gate-error" class="err" style="margin:10px 0 0;display:none"></p>
+    </section>
+
+    <article id="lesson-body" class="prose" hidden></article>
 
     <nav style="margin-top:44px;display:flex;justify-content:space-between;gap:14px;font-size:14px">
       {prev
-        ? <a href={`${base}learn/${prev.id}/`}>← {prev.data.title}</a>
+        ? <a href={`${base}learn/${prev.slug}/`}>← {prev.title}</a>
         : <a href={`${base}learn/`}>← All lessons</a>}
-      {next && <a href={`${base}learn/${next.id}/`}>{next.data.title} →</a>}
+      {next && <a href={`${base}learn/${next.slug}/`}>{next.title} →</a>}
     </nav>
   </div>
+
+  <script type="application/json" id="enc-data" set:html={encJson}></script>
+
+  <script is:inline>
+    (function () {
+      var enc = JSON.parse(document.getElementById('enc-data').textContent)
+      var form = document.getElementById('gate-form')
+      var gate = document.getElementById('gate')
+      var body = document.getElementById('lesson-body')
+      var errEl = document.getElementById('gate-error')
+      var codeInput = document.getElementById('gate-code')
+      var KEYNAME = 'training-access-code'
+
+      function b64(s) { return Uint8Array.from(atob(s), function (c) { return c.charCodeAt(0) }) }
+
+      function deriveKey(code) {
+        var te = new TextEncoder()
+        return crypto.subtle.importKey('raw', te.encode(code), 'PBKDF2', false, ['deriveKey'])
+          .then(function (baseKey) {
+            return crypto.subtle.deriveKey(
+              { name: 'PBKDF2', salt: b64(enc.salt), iterations: enc.iterations, hash: 'SHA-256' },
+              baseKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt'])
+          })
+      }
+
+      function unlock(code, remember) {
+        return deriveKey(code).then(function (key) {
+          return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(enc.iv) }, key, b64(enc.ct))
+        }).then(function (buf) {
+          body.innerHTML = new TextDecoder().decode(buf)
+          body.hidden = false
+          gate.style.display = 'none'
+          if (remember) { try { sessionStorage.setItem(KEYNAME, code) } catch (e) {} }
+        })
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault()
+        errEl.style.display = 'none'
+        unlock(codeInput.value, true).catch(function () {
+          errEl.textContent = 'Wrong code — the content did not decrypt.'
+          errEl.style.display = 'block'
+        })
+      })
+
+      // Auto-unlock if this session already has a working code.
+      var saved = null
+      try { saved = sessionStorage.getItem(KEYNAME) } catch (e) {}
+      if (saved) {
+        unlock(saved, false).catch(function () {
+          try { sessionStorage.removeItem(KEYNAME) } catch (e) {}
+        })
+      }
+    })()
+  </script>
 </Base>

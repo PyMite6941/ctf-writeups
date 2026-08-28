@@ -7,7 +7,9 @@ export default defineConfig({
   site: 'https://pymite6941.github.io',
   base: '/ctf-writeups/',
   output: 'static',
-  integrations: [sitemap()],
+  // Keep the gated /learn pages out of the sitemap too — a sitemap would
+  // re-advertise the very URLs their noindex is meant to keep out of search.
+  integrations: [sitemap({ filter: (page) => !page.includes('/learn') })],
   markdown: {
     syntaxHighlight: 'shiki',
     shikiConfig: {
